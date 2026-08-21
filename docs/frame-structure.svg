@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620" role="img" aria-label="Structure of the handoff frame: five chapter groups containing thirteen numbered sections">
+  <defs>
+    <style>
+      .bg    { fill:#F5F6F8; }
+      .sheet { fill:#FFFFFF; stroke:#E3E6EA; stroke-width:1; }
+      .grp   { fill:#FFFFFF; stroke:#E3E6EA; stroke-width:1; }
+      .sec   { fill:#FBFCFD; stroke:#E3E6EA; stroke-width:1; }
+      .title { font:600 20px 'Inter','Helvetica Neue',Arial,sans-serif; fill:#101828; }
+      .kick  { font:600 10px 'Inter','Helvetica Neue',Arial,sans-serif; fill:#5C6672; letter-spacing:1.2px; }
+      .gname { font:600 12px 'Inter','Helvetica Neue',Arial,sans-serif; fill:#101828; letter-spacing:0.6px; }
+      .sname { font:500 11px 'Inter','Helvetica Neue',Arial,sans-serif; fill:#101828; }
+      .snote { font:400 10px 'Inter','Helvetica Neue',Arial,sans-serif; fill:#5C6672; }
+      .foot  { font:400 11px 'Inter','Helvetica Neue',Arial,sans-serif; fill:#5C6672; }
+      .rule  { stroke:#E3E6EA; stroke-width:1; }
+      .tick  { fill:#5C6672; }
+    </style>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#101828" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect class="bg" width="900" height="620"/>
+  <g filter="url(#sh)"><rect class="sheet" x="40" y="32" width="820" height="556" rx="20"/></g>
+
+  <text class="kick" x="72" y="72">HANDOFF FRAME</text>
+  <text class="title" x="72" y="98">DS · {Component} · Handoff</text>
+  <line class="rule" x1="72" y1="118" x2="828" y2="118"/>
+
+  <!-- group 1 -->
+  <rect class="grp" x="72" y="138" width="360" height="150" rx="12"/>
+  <text class="gname" x="90" y="160">OVERVIEW</text>
+  <rect class="sec" x="90" y="172" width="324" height="44" rx="8"/>
+  <text class="sname" x="104" y="190">00 · Header</text>
+  <text class="snote" x="104" y="206">name · status badge · owner · version · updated</text>
+  <rect class="sec" x="90" y="224" width="324" height="44" rx="8"/>
+  <text class="sname" x="104" y="242">01 · Component</text>
+  <text class="snote" x="104" y="258">the component itself · properties table · parts</text>
+
+  <!-- group 2 -->
+  <rect class="grp" x="448" y="138" width="380" height="204" rx="12"/>
+  <text class="gname" x="466" y="160">STRUCTURE</text>
+  <rect class="sec" x="466" y="172" width="344" height="44" rx="8"/>
+  <text class="sname" x="480" y="190">02 · Anatomy</text>
+  <text class="snote" x="480" y="206">numbered gutter pins into a parts legend</text>
+  <rect class="sec" x="466" y="224" width="344" height="34" rx="8"/>
+  <text class="sname" x="480" y="245">03 · Modes<tspan class="snote">   light and dark, side by side</tspan></text>
+  <rect class="sec" x="466" y="266" width="167" height="24" rx="8"/>
+  <text class="sname" x="480" y="282">04 · Variants</text>
+  <rect class="sec" x="643" y="266" width="167" height="24" rx="8"/>
+  <text class="sname" x="657" y="282">05 · Sizes</text>
+  <rect class="sec" x="466" y="298" width="344" height="30" rx="8"/>
+  <text class="sname" x="480" y="317">06 · States<tspan class="snote">   every state rendered in every mode</tspan></text>
+
+  <!-- group 3 -->
+  <rect class="grp" x="72" y="304" width="360" height="150" rx="12"/>
+  <text class="gname" x="90" y="326">CONTRACT</text>
+  <rect class="sec" x="90" y="338" width="324" height="34" rx="8"/>
+  <text class="sname" x="104" y="359">07 · Tokens<tspan class="snote">   tier + value per mode</tspan></text>
+  <rect class="sec" x="90" y="380" width="324" height="34" rx="8"/>
+  <text class="sname" x="104" y="401">08 · Spec<tspan class="snote">   YAML — the machine contract</tspan></text>
+  <rect class="sec" x="90" y="422" width="324" height="20" rx="8"/>
+  <text class="sname" x="104" y="436">09 · Accessibility<tspan class="snote">   role · keys · contrast</tspan></text>
+
+  <!-- group 4 -->
+  <rect class="grp" x="448" y="358" width="380" height="96" rx="12"/>
+  <text class="gname" x="466" y="380">USAGE</text>
+  <rect class="sec" x="466" y="392" width="344" height="24" rx="8"/>
+  <text class="sname" x="480" y="408">10 · Content</text>
+  <rect class="sec" x="466" y="422" width="344" height="24" rx="8"/>
+  <text class="sname" x="480" y="438">11 · Do / Don’t<tspan class="snote">   paired examples</tspan></text>
+
+  <!-- group 5 -->
+  <rect class="grp" x="72" y="470" width="756" height="62" rx="12"/>
+  <text class="gname" x="90" y="492">HISTORY</text>
+  <rect class="sec" x="90" y="500" width="720" height="20" rx="8"/>
+  <text class="sname" x="104" y="514">12 · Changelog<tspan class="snote">   versioned rows, newest first</tspan></text>
+
+  <line class="rule" x1="72" y1="552" x2="828" y2="552"/>
+  <text class="foot" x="72" y="572">Sections 00–12 · grouped by gestalt, not by number · drawn in a generic visual language so documentation chrome never restyles its subject</text>
+</svg>
