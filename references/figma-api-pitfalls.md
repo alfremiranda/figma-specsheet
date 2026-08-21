@@ -296,7 +296,7 @@ There is no way to read the acting user from inside a `use_figma` script. Identi
 from the MCP layer instead:
 
 ```
-mcp__Figma__whoami  ->  { handle: "Alfredo Miranda", email: "...", plans: [...] }
+mcp__Figma__whoami  ->  { handle: "Ada Okonkwo", email: "...", plans: [...] }
 ```
 
 Call it **before** the write, then pass the handle into the script as a literal. Do not
@@ -447,7 +447,7 @@ Setting `x`/`y` on a child of an auto-layout frame does nothing. The child keeps
 
 This bites hardest on `COMPONENT_SET`, which Figma frequently gives
 `layoutMode: 'HORIZONTAL'` with `layoutWrap: 'WRAP'`. A reflow script that assigns
-coordinates to 168 variants silently produces a wrapped flow instead — and a verification
+coordinates to every variant silently produces a wrapped flow instead — and a verification
 that only checks for overlaps and bounds **passes**, because a wrapped layout has neither
 problem. Only a screenshot reveals it.
 
@@ -495,10 +495,10 @@ one line and removes the whole class of collision.
 ## 20. `ComponentNode.instances` only sees loaded pages
 
 Pages load incrementally and `loadAllPagesAsync` is unavailable here, so `instances` returns
-only what is currently loaded. Across one session the same set reported **296, then 345,
-then 496** instances — with no edits, purely as more pages were visited.
+only what is currently loaded. Across one session the same set reported three
+different totals, each larger than the last — with no edits, purely as more pages were
+visited.
 
-Any instance count is a **lower bound**. Label it as one. Reporting "296 instances affected"
-as fact, to a user deciding whether to approve a breaking change, understates the blast
-radius they are approving.
+Any instance count is a **lower bound**. Label it as one. Reporting a count as fact, to a user deciding
+whether to approve a breaking change, understates the blast radius they are approving.
 

@@ -101,7 +101,7 @@ rebindings, token renames.
 | C12 New variables not yet published | warning | `action required: publish library` |
 | C13 **Token name matches its binding** | warning | The `property` segment (`background`/`border`/`indicator`/…) must match the node property it is bound to. A `…/border/unread` bound to a fill is lying |
 | C14 **Description is not stale** | warning | Flag any description naming a treatment (`ring`, `dot`, `border`, `pill`, `underline`) that contradicts its current binding |
-| C18 **`strokeWeight` and `opacity` are bound, not literals** | warning | `C1` covers fills, sizes and radii but missed stroke weight. A 1px border and a 2px focus ring are visual values like any other. If the system has no `size/border/*` scale, that is the finding — report the gap, do not silently hardcode. **`opacity` is the one that hides**: a disabled variant dimmed to `0.6` looks tokenised because every fill beside it is bound, and `C1` never inspects it |
+| C18 **`strokeWeight` and `opacity` are bound, not literals** | warning | `C1` covers fills, sizes and radii but missed stroke weight. A 1px border and a 2px focus ring are visual values like any other. If the system has no `size/border/*` scale, that is the finding — report the gap, do not silently hardcode. **`opacity` is the one that hides**: a disabled variant dimmed by an unbound opacity looks tokenised because every fill beside it is bound, and `C1` never inspects it |
 | C16 **Published library variable preferred over a local one** | blocker | Binding a local duplicate silently detaches the node from the library |
 | C17 **No local variable shadows a published one** | warning | Same name and resolved value as a library variable — names the one it shadows |
 | C15 Bound paint is actually bound | blocker | A stale name→variable map yields an unbound black paint without throwing. Verify `fills[0].boundVariables?.color` after binding |
@@ -128,7 +128,7 @@ rebindings, token renames.
 | E0 **Alpha composited before the ratio, by one shared helper** | blocker (of the audit itself) | Raw RGB on an alpha token reports a pass where there is a failure. If E0 is not implemented, every E result is void. **Written once and reused** — re-implementing the maths per call site is how the alpha gets dropped, and it has happened inside a single run: the correct composited value was computed for a report, then the same maths retyped in a solver returned a wrong verdict |
 | E1 Text vs background ≥ 4.5:1 (3:1 large) | blocker | Per mode, per variant, per state |
 | E2 Any element identifying a **state** ≥ 3:1 | blocker | A tint that is the sole marker of a state counts |
-| E3 **Focus indicator ≥ 3:1 against the layer it touches** | blocker | *Adjacent*, not "vs the background". For a two-tone ring the meaningful pair is inner-vs-halo. Measuring the inner ring against the canvas it never touches produced 1.46:1 on a ring that actually measured 2.99:1 against its halo — a wrong verdict by a wide margin, in both directions |
+| E3 **Focus indicator ≥ 3:1 against the layer it touches** | blocker | *Adjacent*, not "vs the background". For a two-tone ring the meaningful pair is inner-vs-halo. Measuring an inner ring against a canvas it never touches produces a very different number from measuring it against the halo it does touch — wrong in both directions, and by a wide margin |
 | E4 Every layer of the indicator identified before measuring | blocker | Read the effect stack and its bound variables first. A halo whose colour matches the canvas is a *gap*, not a second ring, and holding it to 3:1 invents a requirement that does not exist |
 | E5 Disabled text ratio recorded | info | Exempt, still reported |
 | E6 Transient states (hover) recorded, not failed | info | Cursor is a second cue |
@@ -210,8 +210,8 @@ Full recipes, sweep script and heuristic tuning in
 | J7 No text overflowing a clipping ancestor | blocker | Compare against parent inner height, not the frame |
 | J8 Column layers are `FIXED` width | warning | A hugging label destroys row alignment |
 
-**Heuristic tuning is part of the check.** The first run of this sweep flagged 190 of 423
-nodes, of which 7 were real. An over-eager sweep trains people to ignore it. Fixed-height
+**Heuristic tuning is part of the check.** The first version of this sweep flagged close to
+half the nodes in a frame, of which a handful were real. An over-eager sweep trains people to ignore it. Fixed-height
 cells, single glyphs, and type styles with `lineHeight ≤ fontSize` are all legitimate —
 test against the style's line-height and the parent's inner height, not against font size.
 
@@ -322,7 +322,7 @@ figma-specsheet · Tabs · RE-AUDIT (dry run)
     unread     value of `state`                 →  boolean + dot
 
   BLOCKERS (2)
-    E2   unread tint vs surface · Light 1.32:1 · Dark 1.73:1 · needs 3:1
+    E2   unread tint vs surface · Light 2.1:1 · Dark 2.4:1 · needs 3:1
     F7   unread is a value of `state` — cannot co-occur with selected
 
   WARNINGS (2)

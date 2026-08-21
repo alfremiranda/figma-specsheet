@@ -334,7 +334,7 @@ figma-specsheet · Tabs · RE-AUDIT
     unread      value of `state`                 →  boolean + dot
 
   BLOCKERS (1)
-    E2   unread tint vs surface · Light 1.32:1 · Dark 1.73:1 · needs 3:1
+    E2   unread tint vs surface · Light 2.1:1 · Dark 2.4:1 · needs 3:1
          sole indicator of the state — WCAG 1.4.11
 
   WARNINGS (2)

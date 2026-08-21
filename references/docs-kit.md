@@ -171,7 +171,7 @@ t.letterSpacing = { unit: 'PERCENT', value: 0 };
 | The spec block | Token swatches |
 
 Walk up from each text node; if any ancestor is the documented component or one of its
-instances, skip it. On a full 13-section frame this skipped 186 of 259 text nodes — the component
+instances, skip it. On a full 13-section frame this skips the large majority of text nodes — the component
 must render in its own type, or the documentation is lying about what it looks like.
 
 ### Colour — same argument, not yet applied
@@ -333,7 +333,7 @@ changes length.
 
 > **Variants: `pass | fail | exempt | info`.** Two are not enough. The rubric depends on
 > both extra states: WCAG 1.4.3 exempts inactive components, so a disabled pair measuring
-> 1.86:1 is *exempt*, not a failure — and a hover tint that is not the sole indicator of
+> under 2:1 is *exempt*, not a failure — and a hover tint that is not the sole indicator of
 > state is *info*. Rendering either as `pass` with an explanation buried in the requirement
 > column is a workaround, and it makes the section's own counts wrong.
 | Property | Type |

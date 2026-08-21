@@ -27,6 +27,27 @@ The 15 non-negotiables in `SKILL.md` and the checks in `references/audit-rubric.
 load-bearing. To change one, the PR needs to show the case where the current rule produces
 a wrong result. Rule changes bump the **minor** version; new checks bump **patch**.
 
+## Never publish a measurement of a real file
+
+Worked examples explain failures. They do not carry data from the file the failure was found
+in — no contrast ratios, variant or instance counts, node totals, token values, pixel
+measurements, component names, node IDs, file keys, locales or handles.
+
+This is not a formality. A skill like this gets developed against somebody's production
+design system, and every number that survives into the repo tells its readers something
+about that system which its owner never agreed to publish.
+
+The mechanism is what teaches, and it survives generalisation intact:
+
+> ✗ The width heuristic flagged 89 label columns; with the fix, 830 nodes and 0 issues.
+> ✓ The width heuristic flagged dozens of correctly-designed label columns; with the fix, zero issues.
+
+Both sentences make the same argument. Only one of them is about someone's file.
+
+`scripts/check.py` enforces the two mechanical cases — live Figma file keys and real
+`@handles`. The rest is a review question, and it is the first thing to look for in a PR
+that adds an example.
+
 ## Style
 
 - Reference files are loaded on demand — keep `SKILL.md` the index, push detail down.

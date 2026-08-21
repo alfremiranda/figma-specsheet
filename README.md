@@ -124,7 +124,7 @@ model explicitly, `read-figma-component` stops inferring them.
 A handful of the 15 non-negotiables, because they're the ones that catch real bugs:
 
 - **Contrast is computed alpha-composited, per mode.** A 30 %-alpha tint read as raw RGB
-  will report 14.63:1 where it actually resolves to 1.91:1. This check has caught more
+  will report a ratio in the teens where it actually resolves to under 2:1. This check has caught more
   real defects than every other check combined.
 - **Mode parity.** Every variable must resolve in *every* mode of its collection. A missing
   value falls back silently and only fails in the mode nobody screenshots.

@@ -209,8 +209,8 @@ const axis = xSpread > ySpread ? 'bottom gutter, vertical leaders'
 ```
 
 A left gutter assumes the parts are stacked vertically. A horizontal control breaks that
-assumption completely: a Button's leading icon, label and trailing icon spread **83px
-horizontally and 0px vertically** — they share one vertical centre. Placing their pins in a
+assumption completely: an inline control's leading icon, label and trailing icon spread
+**horizontally with effectively no vertical spread** — they share one vertical centre. Placing their pins in a
 left gutter stacks all three at the same `y`, and the collision rule then pushes two of them
 off the parts they point at, which is the exact failure the gutter was introduced to avoid.
 

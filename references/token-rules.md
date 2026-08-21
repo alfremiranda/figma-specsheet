@@ -276,8 +276,8 @@ function over(fg, bg) {
 }
 ```
 
-Reading raw RGB on `color/white/20` reported **14.63:1** where the composited value is
-**1.91:1** — an invisible focus indicator passing the audit. Any token built on an alpha
+Reading raw RGB on a 20 %-alpha white token reports a ratio in the teens where the
+composited value is under 2:1 — an invisible focus indicator passing the audit. Any token built on an alpha
 primitive is mis-scored without this.
 
 The backdrop is the resolved surface token, not white.

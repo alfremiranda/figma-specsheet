@@ -1,28 +1,44 @@
 # figma-specsheet — Changelog
 
-## v3.2.0 — 2026-08-21
+## v3.2.1 — 2026-08-21
 
-Everything here came from running the skill end-to-end against a real 168-variant Button —
-the first full CREATE since v3.0. Fourteen defects, every one found by something going wrong
-rather than by review.
+No rule changes. Everything here removes information about the file the skill was developed
+against.
 
 | # | Change | Reason |
 |---|---|---|
-| 81 | **The section-discovery contract now constrains type and parent.** `SKILL.md`, `frame-template.md`, `visual-design.md` and `read-figma-component` all updated together; new pitfall §19 | Figma auto-names a TEXT node after its own content, so a sizes table rendering `10 · 4` produced a node matching `/^\d\d · /`. The sweep reported **16 sections in a 13-section frame**. Anything parsing sections by name would have read padding values as sections, silently. This was the single most dangerous defect in the skill |
-| 82 | **Post-write verification must assert the intended value**, not merely a self-consistent result | A reflow of 168 variants was ignored entirely by an auto-layout `WRAP` parent, and the verification **passed** — no overlaps, all in bounds, both true of a wrapped flow. Only a screenshot caught it. A check that can pass on a result you did not ask for is a sanity check, not a verification |
+| 98 | **Every measurement taken from a real file replaced with a generic statement** — contrast ratios, variant and instance counts, node and text-node totals, pixel spreads, opacity values | A rule earns its place by explaining the failure it prevents, not by publishing the numbers that exposed it. "The width heuristic flagged dozens of correctly-designed label columns" carries the whole argument; the exact count only tells a reader about someone else's file. Worked examples keep obviously-synthetic values |
+| 99 | **The scrub denylist replaced with a general rule.** `check.py` no longer carries a list of specific terms; it rejects any real `@handle` in a worked example, matching rubric `I0` | The denylist was two bugs at once. It listed a **common component name**, so a contributor documenting a component of that name would have been rejected by a rule encoding one private repo's history as universal. And a denylist is a public list of exactly what was scrubbed, which is the opposite of scrubbing it |
+| 100 | **Example owners and identities are fictional throughout** | An example owner is illustration, not attribution. Authorship belongs in `LICENSE` and the README, and stays there |
+
+**The standing rule, now in CONTRIBUTING.** A worked example may describe a failure in as
+much detail as it takes to be convincing, and may not carry a measurement of a real file.
+Those are compatible: the mechanism is what teaches, and the number is what leaks.
+
+
+## v3.2.0 — 2026-08-21
+
+Everything here came from running the skill end-to-end against a large multi-axis component
+— the first full CREATE since v3.0. Fourteen defects, every one found by something going
+wrong rather than by review.
+
+| # | Change | Reason |
+|---|---|---|
+| 81 | **The section-discovery contract now constrains type and parent.** `SKILL.md`, `frame-template.md`, `visual-design.md` and `read-figma-component` all updated together; new pitfall §19 | Figma auto-names a TEXT node after its own content, so a sizes table rendering a padding pair produced a node matching `/^\d\d · /`. The sweep reported **more sections than the frame has**. Anything parsing sections by name would have read padding values as sections, silently. This was the single most dangerous defect in the skill |
+| 82 | **Post-write verification must assert the intended value**, not merely a self-consistent result | A reflow of an entire variant set was ignored by an auto-layout `WRAP` parent, and the verification **passed** — no overlaps, all in bounds, both true of a wrapped flow. Only a screenshot caught it. A check that can pass on a result you did not ask for is a sanity check, not a verification |
 | 83 | **New pitfall §18** — auto-layout ignores `x`/`y`, and component sets are frequently `WRAP` | Nothing throws. `layoutPositioning` stays `AUTO` and Figma places by child order |
 | 84 | **New pitfall §17** — `description` HTML-escapes quotes | `"¿Eliminar?"` stores `&quot;¿Eliminar?&quot;`. It is the only durable metadata channel and `read-figma-component` parses it, so the entity reaches generated code. A strict comparison also reports a failure that did not happen |
-| 85 | **New pitfall §20** — `ComponentNode.instances` only sees loaded pages | The same set reported 296, then 345, then 496 across one session with no edits. Every instance count is a **lower bound** and must say so — a user approving a breaking change is being shown the blast radius |
-| 86 | **Sizing modes must be re-asserted after `resize()`** (§3 extended, corollary in post-write-verification) | A root frame created `FIXED` was later found `HUG` at 1686px, silently growing to fit its widest child |
+| 85 | **New pitfall §20** — `ComponentNode.instances` only sees loaded pages | The same set reported three different totals across one session, each larger than the last, with no edits. Every instance count is a **lower bound** and must say so — a user approving a breaking change is being shown the blast radius |
+| 86 | **Sizing modes must be re-asserted after `resize()`** (§3 extended, corollary in post-write-verification) | A root frame created `FIXED` was later found `HUG`, silently growing to fit its widest child |
 | 87 | **Content width is a constant, fixed before the first section**, and the oversized-subject rule now counts *both* paddings | Every table is laid out against the content column; step 12 changes root padding, so a moving column overflows all of them. The first attempt at the subject rule omitted the hero's padding and clipped the master |
-| 88 | **`03 · Modes` gets a sufficiency rule and a stacking fallback** | The template said "the same content" without saying what content is enough, which allowed a four-button panel to claim it proved every variable resolves in both modes. Two 45-instance panels also cannot share a 1344px column |
-| 89 | **`04 · Variants` gets a matrix model for >2 axes**, with absent combinations stated rather than omitted | "One row per variant" means 168 rows on a real Button. And an omitted pairing is indistinguishable from an undocumented one — a developer will call `setProperties` toward a variant that does not exist |
-| 90 | **The anatomy gutter axis is chosen from the part spread** | A left gutter assumes vertically-stacked parts. A Button's parts spread 83px horizontally and **0px vertically**, so all three pins land on one `y` and the collision rule pushes two off their targets — the exact failure the gutter was introduced to prevent |
-| 91 | **The text sweep keys on characters-per-line, not raw width** | The width heuristic flagged 89 correctly-designed fixed-width label columns. With the corrected one: 830 nodes, 0 issues |
-| 92 | **Alpha compositing lives in one shared helper** (`E0` rewritten) | It was written correctly, then retyped minutes later in a solver with the alpha dropped, producing a wrong verdict. The rule that exists to prevent this error was broken by re-implementing it |
-| 93 | **Focus indicators are measured against adjacent layers** (`E3`/`E4` rewritten) | Measuring an inner ring against a canvas it never touches gave 1.46:1 on a ring that measured 2.99:1 against its halo. `E4` now requires identifying every layer of the indicator first — a halo matching the canvas is a gap, not a second ring |
+| 88 | **`03 · Modes` gets a sufficiency rule and a stacking fallback** | The template said "the same content" without saying what content is enough, which allowed a four-button panel to claim it proved every variable resolves in both modes. Two dense panels also cannot always share one content column |
+| 89 | **`04 · Variants` gets a matrix model for >2 axes**, with absent combinations stated rather than omitted | "One row per variant" means well over a hundred rows on a real component. And an omitted pairing is indistinguishable from an undocumented one — a developer will call `setProperties` toward a variant that does not exist |
+| 90 | **The anatomy gutter axis is chosen from the part spread** | A left gutter assumes vertically-stacked parts. An inline control's parts spread horizontally with **effectively no vertical spread**, so every pin lands on one `y` and the collision rule pushes two off their targets — the exact failure the gutter was introduced to prevent |
+| 91 | **The text sweep keys on characters-per-line, not raw width** | The width heuristic flagged dozens of correctly-designed fixed-width label columns. With the corrected one: zero issues |
+| 92 | **Alpha compositing lives in one shared helper** (`E0` rewritten) | It was written correctly, then retyped minutes later in a solver with the alpha dropped, producing a wrong verdict. The rule that exists to prevent this error was broken by re-typing it |
+| 93 | **Focus indicators are measured against adjacent layers** (`E3`/`E4` rewritten) | Measuring an inner ring against a canvas it never touches gives a very different number from measuring it against the halo it does touch. `E4` now requires identifying every layer of the indicator first — a halo matching the canvas is a gap, not a second ring |
 | 94 | **The config block is found by name and merged, never replaced** | A truncated scan of the kit cover missed an existing `config` node and reported "no config block"; the write-back then overwrote it. `severityOverrides` are user decisions and were destroyed silently |
-| 95 | **`C18` extended to `opacity`; new `A14` and `A15`; four verdicts instead of two** | A disabled variant dimmed to `0.6` looks tokenised because every fill beside it is bound. And `exempt` is not `pass` — WCAG 1.4.3 excludes inactive components, so reporting a 1.86:1 disabled pair either way is wrong |
+| 95 | **`C18` extended to `opacity`; new `A14` and `A15`; four verdicts instead of two** | A disabled variant dimmed by an unbound opacity looks tokenised because every fill beside it is bound. And `exempt` is not `pass` — WCAG 1.4.3 excludes inactive components, so reporting a failing disabled pair either way is wrong |
 | 96 | **`_docs/Contrast Result` needs `exempt` and `info` variants** | The rubric depends on both; the kit offers only `pass \| fail`, so exempt rows were rendered as passes with the exemption buried in a column |
 | 97 | **`scripts/check.py` guards the discovery contract** | The defect in 81 is a one-character regression away from returning |
 
@@ -49,7 +65,7 @@ rubric and the write path are identical to v3.0.1.
 | 79 | **Three rules that contradicted each other resolved in favour of the later decision.** `A13` no longer requires pins *on the artwork* — it requires every legend entry to have an anchored pin, and `L15` owns where the pin sits (gutter, leader line). The type scale is 44 / 28 / 20 / 14 everywhere; `docs-kit` and `frame-template` still carried the retired 28 / 20. The root frame is the white sheet; `frame-template` still said "semantic surface token" and `visual-design`'s own common-region block still described the pre-sheet page/card model | These were not style preferences in tension — `A13` was a **blocker** and `L15` a **warning** demanding the opposite thing, so no frame could satisfy the rubric. Changes 61 and 63 made the newer call and never swept the files that stated the old one. Entries 18, 29 and 47 below are superseded |
 | 80 | **Counts in the README corrected against the files** — 119 checks not 46, a 14-step CREATE flow not 12, 15 non-negotiables not 14 | 46 predates sections J, K and L entirely. A number in a README is a claim, and this one had been wrong for three releases |
 | 77 | **Every worked example re-cast onto a neutral `Tabs` / `Tab` pair**, and the pilot component's audit report removed from the repo | The examples came from a real client file — its component name, its node IDs, its token values. A reader would reasonably conclude the skill was written for that one component, and the file's node IDs are not ours to publish. `Tabs` has the same structural shape (a parent owning an internal, repeating, independently-focusable part, with a boolean that co-occurs with `selected`), so every lesson survives the swap |
-| 78 | **`scripts/check.py` fails on client identifiers** — a live Figma file key, or a component name, locale or handle from the pilot file reappearing in a reference | A neutralisation that is not enforced quietly reverts the first time someone pastes a real audit into a reference file |
+| 78 | **`scripts/check.py` fails on identifiers from a real file** — a live Figma file key, or a real owner handle in a worked example | A neutralisation that is not enforced quietly reverts the first time someone pastes a real audit into a reference file |
 | 76 | **CI link check** on every push and PR (`.github/workflows/lint.yml`) | Progressive disclosure only works if the links between `SKILL.md` and `references/` resolve. A dead reference link means a rule silently stops being loaded — the failure mode is a skill that quietly gets dumber, which nothing else would catch |
 
 **On the examples.** The reference files teach through worked examples, and those examples
@@ -92,8 +108,8 @@ three already covered, two probably unbuildable here.
 | 72 | **Priority as a second axis** on the fix plan. Risk governs what the skill may do; priority is what the human does Monday. They disagree often — a breaking fix is frequently the most urgent | design-system-ops |
 | 73 | **Calibration note** closing every report, with a hook: reply with a check ID to downgrade it, recorded in the config. A rubric that presents itself as infallible gets muted the first time it is wrong about a deliberate decision | design-system-ops |
 
-**Why 65 is the important one.** Four failures in the pilot — 41 unbound content
-paints, six black key caps, a cloned variant rendering stale text, 21 wrapping labels —
+**Why 65 is the important one.** Four failures in the pilot — unbound content
+paints, six black key caps, a cloned variant rendering stale text, labels wrapping per character —
 all came from scripts that returned success with valid node IDs. The information to catch
 each was already in scope at write time. Nothing was missing except the assertion.
 
@@ -129,7 +145,7 @@ than leaving it open; revisit only if a REST-backed comment tool appears.
 
 ```
 score 100 · blockers 0 · warnings 0 · 46 of 119 checks applicable
-content paints 65 bound · 0 unbound
+content paints all bound · 0 unbound
 
 (Per-category tallies from this run were recorded against the pre-J/K/L rubric
 and no longer map onto the current section letters, so they are not reproduced.)
@@ -240,7 +256,7 @@ Docs chrome no longer depends on the host file's text styles.
 |---|---|
 | 33 | **Chrome type is self-contained.** A generic sans + mono resolved by availability probe, applied directly to nodes. The kit previously resolved `S['Heading/Card']` — a name that exists in exactly one file. `A16` |
 | 34 | **An 11-role type scale** — display, title, subhead, eyebrow, bodyLg, body, bodyStrong, label, badge, mono, monoSm — documented with sizes, weights, line-heights and tracking |
-| 35 | **The chrome/content boundary.** The restyle sweep must skip the documented component and its instances. On this run that was 186 of 259 text nodes. `A17` |
+| 35 | **The chrome/content boundary.** The restyle sweep must skip the documented component and its instances. On a full frame that is the large majority of text nodes. `A17` |
 | 36 | **Colour has the same problem, flagged not fixed.** Chrome colour still resolves Semantic tokens by exact name. The resolver-with-fallback pattern is documented; it is not implemented |
 
 **The reasoning:** documentation chrome is infrastructure, not product UI. Coupling it to
@@ -278,7 +294,7 @@ down five lines.
 | 25 | **The container trap.** A container hugging horizontally while holding a `FILL` child is always a bug — neither side has a width to give. Now a searchable shape and a blocker (`J4`) |
 | 26 | **The sweep is a mandatory build step**, over the handoff frame *and* the kit page. Both must return zero |
 | 27 | **New rubric section `J`** — eight checks, J1–J8 |
-| 28 | **Heuristic tuning is part of the check.** The first sweep flagged 190 of 423 nodes; 7 were real. Fixed-height cells, single glyphs, and type styles with `lineHeight ≤ fontSize` are legitimate. An over-eager sweep is worse than none |
+| 28 | **Heuristic tuning is part of the check.** The first sweep flagged close to half the nodes; a handful were real. Fixed-height cells, single glyphs, and type styles with `lineHeight ≤ fontSize` are legitimate. An over-eager sweep is worse than none |
 
 **Why this class of bug survives every other check:** the script reports success, the
 structure is correct, the tokens are bound, and the property values are right. Only the
@@ -313,7 +329,7 @@ a second pass after the designer edited the component underneath the documentati
 | # | Was | Now |
 |---|---|---|
 | 1 | Ownership via `setSharedPluginData` | **Unavailable in `use_figma`.** And `description` does not exist on FRAME nodes. Discovery is by name; `ref`/`kit` live in visible Meta Rows. `pitfalls §1`, `SKILL → Discovery contract` |
-| 2 | Contrast on raw RGB | **Alpha composited against the real backdrop first.** Raw RGB reported 14.63:1 where the true value was 1.91:1 — an invisible focus ring passing the audit. `token-rules → Contrast gates`, `rubric E0` |
+| 2 | Contrast on raw RGB | **Alpha composited against the real backdrop first.** Raw RGB reported a ratio in the teens where the true value was under 2:1 — an invisible focus ring passing the audit. `token-rules → Contrast gates`, `rubric E0` |
 | 3 | "Typography binds text styles, only text styles" | Two valid strategies; variables are correct when one axis varies by state. Never mix **on one node**. `SKILL rule 6` |
 | 4 | `semantic-gap` for every Primitive alias | Split into `semantic-gap` (warning) and `primitive-justified` (info, requires a written reason). Alpha tints have no purpose-level meaning worth naming. `token-rules` |
 | 5 | Component collection must be single-mode | **Match the file.** Multi-mode is fine; the aliasing strategy depends on whether frames pin Semantic and Component together. Verify before choosing. `SKILL rule 4`, `rubric D5` |

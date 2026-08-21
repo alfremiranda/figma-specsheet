@@ -8,10 +8,10 @@ came from a script that returned success with valid node IDs:
 
 | Failure | Actually caught | Should have been |
 |---|---|---|
-| A styling pass unbound 41 content paints | Two calls later, by chance | Same script |
+| A styling pass unbound the content paints | Two calls later, by chance | Same script |
 | Six key caps rendered solid black | Next screenshot | Same script |
 | A cloned variant rendered stale text | Next screenshot | Same script |
-| 21 labels wrapped per character | Only when a human looked | Same script |
+| Labels wrapped per character | Only when a human looked | Same script |
 
 In each case the information needed to catch it was already in scope at write time. Nothing
 was missing except the assertion.
@@ -141,7 +141,7 @@ node.**
 The rule above proves a write *happened*. It does not prove the write produced **what you
 intended**, and those are different things.
 
-A reflow assigned `x`/`y` to 168 variants inside a `COMPONENT_SET` that had
+A reflow assigned `x`/`y` to every variant of a large `COMPONENT_SET` that had
 `layoutWrap: 'WRAP'`. Auto-layout ignored every coordinate. The verification checked that no
 two nodes overlapped and that all were inside the parent — and **passed**, because a wrapped
 flow satisfies both. The grid was completely wrong and only a screenshot showed it.
@@ -171,7 +171,7 @@ a result you did not ask for is not a verification, it is a sanity check.
 - **Normalise before comparing text.** `description` HTML-escapes quotes, so a strict
   comparison reports a failure that did not occur (§17).
 - **Do not invent the assertion's own threshold.** A "starved text" check keyed on raw width
-  flagged 89 correctly-designed fixed-width label columns. An over-eager assertion trains
+  flagged dozens of correctly-designed fixed-width label columns. An over-eager assertion trains
   the reader to ignore the output — the same failure mode as an over-eager sweep.
 
 ## One compositing helper, used everywhere
@@ -180,8 +180,8 @@ Alpha compositing is written once and imported, never re-implemented per call si
 
 On a single run the correct composited value was computed for a report, and then the same
 maths was rewritten minutes later inside a solver — dropping the alpha. The solver reported
-that a token needed fixing in Dark when the properly composited measurement passed at
-4.81:1. The rule that exists to prevent exactly this error was broken by re-typing it.
+that a token needed fixing in Dark when the properly composited measurement passed
+comfortably. The rule that exists to prevent exactly this error was broken by re-typing it.
 
 ```js
 const over = (fg, bg) => ({

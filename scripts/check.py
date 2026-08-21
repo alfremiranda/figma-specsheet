@@ -79,21 +79,21 @@ for p in md_files():
         if m and "<" not in m.group(1):
             errors.append(f"{p.relative_to(ROOT)}:{i}: live Figma file key in a public repo")
 
-# 6. no identifiers from the pilot file leak back into the worked examples
-#    (the client's own name is deliberately not listed here — it should appear
-#     nowhere in this repo, including in a denylist)
-BANNED = ("Calendar", "es-CO", "@alfre")
+# 6. no real person's handle in a worked example (rubric I0: owners are display names)
+HANDLE = _rx.compile(r"(?<![\w`/])@[A-Za-z][A-Za-z0-9._-]{2,}")
+ALLOWED_AT = ("@theme", "@media", "@import", "@layer", "@supports", "@keyframes", "@apply")
 for p in md_files():
     if p.name == "CHANGELOG.md":
         continue
     for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
-        for word in BANNED:
-            if word in line:
-                errors.append(
-                    f"{p.relative_to(ROOT)}:{i}: client identifier `{word}` — worked "
-                    f"examples must use the neutral Tabs/Tab pair"
-                )
-notes.append("no client identifiers")
+        for m in HANDLE.finditer(line):
+            if m.group(0).lower().startswith(ALLOWED_AT):
+                continue
+            errors.append(
+                f"{p.relative_to(ROOT)}:{i}: `{m.group(0)}` — a worked example must not carry "
+                f"a real handle; owners render as display names (I0)"
+            )
+notes.append("no handles in worked examples")
 
 # 7. the section-discovery contract must constrain type and parent everywhere it appears
 BARE_DISCOVERY = _rx.compile(r"findAll\(\s*n\s*=>\s*/\^\\d\\d")

@@ -179,8 +179,9 @@ const risky = root.findAll(n => (n.type === 'FRAME' || n.type === 'COMPONENT') &
 
 ## Tuning — three false positives to avoid
 
-An over-eager sweep is worse than none; it trains you to ignore the output. The first run
-of this sweep flagged **190 of 423** text nodes, of which **7** were real.
+An over-eager sweep is worse than none; it trains you to ignore the output. The first
+version of this sweep flagged **close to half** the text nodes in a frame, of which a
+handful were real.
 
 | False positive | Why it isn't a bug | Correct test |
 |---|---|---|
@@ -245,9 +246,9 @@ so often really a container problem one or two levels up.
 
 ## The heuristic: characters per line, not raw width
 
-The first version of this sweep flagged **190 of 423** nodes, of which 7 were real. A later
-version keyed on `textAutoResize === 'HEIGHT' && width < 200` and flagged **89** — every one
-of them a kit `Meta Row` label sitting in a correctly-designed fixed 160px label column.
+The first version flagged close to half the nodes in a frame, of which a handful were real.
+A later version keyed on `textAutoResize === 'HEIGHT' && width < 200` and flagged **dozens**
+— every one a kit `Meta Row` label in a correctly-designed fixed-width label column.
 
 **Raw width is not the signal.** A narrow text node is only a bug if it is narrow *relative
 to what it has to say*. The real failure — FILL text starved inside a hug parent — shows up
@@ -265,8 +266,8 @@ else if (t.characters.length > 30
 if (t.parent && t.parent.clipsContent && t.width > t.parent.width + 1) flag('clipped');
 ```
 
-With that heuristic the same frame returned **830 text nodes, 0 issues** — and the issues it
-had found earlier were all still caught in the runs where they were real.
+With that heuristic the same frame returned **zero issues** — and every defect the earlier
+versions had found was still caught in the runs where it was real.
 
 Short labels are not bugs. A section number reading `10`, a badge reading `Do`, a column
 header reading `TYPE` — all legitimately under 40px. A check that flags them is worse than

@@ -111,7 +111,7 @@ ref             48:210          ← how the skill finds the component on re-run
 part set        48:396
 kit             v2               ← docs-kit version this frame was built against
 version         1.2.0
-owner           Alfredo Miranda   ← from the Figma account, never hardcoded
+owner           Ada Okonkwo       ← from the Figma account, never hardcoded
 last updated    2026-08-18
 repo path       packages/core/src/tabs/ds-tabs.ts
 code connect    not mapped
@@ -250,8 +250,7 @@ all variants across all sizes at the default state, then all states at one refer
 ### When two panels do not fit
 
 Side by side is the default because it makes comparison immediate. It is not always
-possible — two panels holding 45 instances each need roughly 1560px and cannot share a
-1344px content column. **Stack them when they do not fit.** A stacked pair at full width
+possible — two dense panels can need more width than the content column allows. **Stack them when they do not fit.** A stacked pair at full width
 beats a side-by-side pair compressed to illegibility.
 
 
@@ -265,8 +264,8 @@ distinguish it from the previous one. Names come from the Figma property values 
 ### More than two axes
 
 "One row per variant" fails the moment a component has more than a couple of axes. A Button
-with `Variant × Severity × Size × State` plus two booleans has 168 variants — 168 rows is
-not a table, it is a list of everything.
+with four variant axes plus two booleans runs to well over a hundred variants — that many
+rows is not a table, it is a list of everything.
 
 **Render a matrix instead:** rows are the real pairs of the two identity axes, columns are
 the state combinations, at one reference size. Sizes belong to `05`, so they are not a third
@@ -396,7 +395,7 @@ Newest first, appended, never rewritten. One row per change, with the reason:
 
 ```
 1.2.0  2026-08-18  unread becomes a boolean; state reduced to 5 values. Ring added —
-                   tint alone was 1.32:1 and failed 1.4.11.              Alfredo Miranda
+                   tint alone fell under 3:1 and failed 1.4.11.       Design Systems Team
 ```
 
 The reason is the point. A changelog of *what* without *why* is a diff, and Figma already
