@@ -158,6 +158,7 @@ references/                       Loaded on demand, not up front
 docs/                             README diagram and the publishing guide
 scripts/check.py                  Structure, links, orphaned references, leaked file keys
 scripts/package.sh                Builds the distributable .skill archive
+scripts/find-unbound-spacing.js   Lists every auto-layout frame inside the components on the current page whose gap or padding is a hardcoded value instead of a bound variable.
 .github/workflows/lint.yml        Runs both scripts on every push and PR
 ```
 
