@@ -1,7 +1,7 @@
 // find-unbound-spacing.js
 // Lists every auto-layout frame inside the components on the current page
 // whose gap or padding is a hardcoded value instead of a bound variable.
-// Run in the Figma console, Scripter, or through any Plugin-API MCP client.
+// Run it through a Figma MCP client. Scripter's compiler is too old for it.
 
 const props = ['itemSpacing', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'];
 const isAutoLayout = n => 'layoutMode' in n && n.layoutMode !== 'NONE';
