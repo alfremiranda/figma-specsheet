@@ -17,6 +17,11 @@ Dry run by default. Nothing written without `--apply` or explicit approval.
 | The handoff frame can't be found on re-run | `A1`, `A8` |
 | An instance renders but won't take properties | `A9` |
 | Text wraps or clips | `J1`–`J8` |
+| Something runs past the edge of its column, and nothing clips it | `J9`, `J10` |
+| A row that should wrap grows sideways instead | `J10` |
+| Token swatches show the wrong colour, or light and dark look identical | `L16`–`L18` |
+| A spacing or size row shows a colour chip | `L19` |
+| `07 · Tokens` is most of the sheet | `L20` |
 | A card is invisible against the page | `L4` |
 | Documentation restyled the component it documents | `L9`, `A17` |
 
@@ -94,14 +99,14 @@ rebindings, token renames.
 | C6a Alias resolves to Primitive, no reason given | warning | `semantic-gap` — names the token that should exist |
 | C6b Alias resolves to Primitive with a written reason | info | `primitive-justified` |
 | C7 Alias chain unbroken | blocker | Deleted link mid-chain |
-| C8 Section 07 rows match live bindings | blocker | Transcribed table has drifted |
+| C8 Section 07 rows match live bindings | blocker | Transcribed table has drifted. Include the hidden `baseline ·` rows of a collapsed table (`L20`) — they are the half of the baseline nobody looks at |
 | C9 Orphan component tokens | warning | Deprecate, never delete |
 | C10 Promotion candidates | info | Same target, ≥2 components |
 | C11 Single-use indirection | info | Over-abstraction |
 | C12 New variables not yet published | warning | `action required: publish library` |
 | C13 **Token name matches its binding** | warning | The `property` segment (`background`/`border`/`indicator`/…) must match the node property it is bound to. A `…/border/unread` bound to a fill is lying |
 | C14 **Description is not stale** | warning | Flag any description naming a treatment (`ring`, `dot`, `border`, `pill`, `underline`) that contradicts its current binding |
-| C18 **`strokeWeight` and `opacity` are bound, not literals** | warning | `C1` covers fills, sizes and radii but missed stroke weight. A 1px border and a 2px focus ring are visual values like any other. If the system has no `size/border/*` scale, that is the finding — report the gap, do not silently hardcode. **`opacity` is the one that hides**: a disabled variant dimmed by an unbound opacity looks tokenised because every fill beside it is bound, and `C1` never inspects it |
+| C18 **`strokeWeight` and `opacity` are bound, not literals** | warning | `C1` covers fills, sizes and radii but missed stroke weight. A 1px border and a 2px focus ring are visual values like any other. If the system has no `size/border/*` scale, that is the finding — report the gap, do not silently hardcode. **On a RECTANGLE, read the four per-side fields** (`strokeTopWeight` …) — `boundVariables.strokeWeight` reads empty there even when all four are bound (figma-api-pitfalls.md §22). **`opacity` is the one that hides**: a disabled variant dimmed by an unbound opacity looks tokenised because every fill beside it is bound, and `C1` never inspects it |
 | C16 **Published library variable preferred over a local one** | blocker | Binding a local duplicate silently detaches the node from the library |
 | C17 **No local variable shadows a published one** | warning | Same name and resolved value as a library variable — names the one it shadows |
 | C15 Bound paint is actually bound | blocker | A stale name→variable map yields an unbound black paint without throwing. Verify `fills[0].boundVariables?.color` after binding |
@@ -151,7 +156,7 @@ deepening the failing one until it collides with a neighbouring state.
 | F4 Matrix covers states × modes | warning | |
 | F5 Disabled uses more than opacity | info | Opacity alone often fails contrast |
 | F6 Loading defines what happens to the label | warning | |
-| F7 **Orthogonal states are separate properties** | blocker | If two states co-occur in reality they cannot be values of one variant. Test by name: `unread`+`selected`, `selected`+`disabled`, `focus-visible`+`hover`, `read-only`+any interaction state. A tab set opens with one tab selected *and* carrying an unread dot — a single `state` enum cannot express it |
+| F7 **Orthogonal states are separate properties** | blocker | If two states co-occur in reality they cannot be values of one variant. Test by name: `unread`+`selected`, `selected`+`disabled`, `focus-visible`+`hover`, `read-only`+any interaction state, and for form controls `error`+`focus-visible` and `filled`+any interaction state. A tab set opens with one tab selected *and* carrying an unread dot — a single `state` enum cannot express it |
 | F8 Visual precedence documented where states collapse | warning | If `selected` supersedes `unread` visually, say so — both stay true in data |
 
 ---
@@ -161,9 +166,9 @@ deepening the failing one until it collides with a neighbouring state.
 | Check | Sev | Detail |
 |---|---|---|
 | G1 Spec block present and valid YAML | blocker | |
-| G2 `role` maps to a real ARIA APG pattern | blocker | Link it |
+| G2 `a11y.pattern` is a real, canonical reference and `role` matches it | blocker | An APG pattern where one exists. A native element with no APG pattern (`<select>`, `<label>`, `<input>`) cites the WHATWG HTML spec or its MDN page instead, and `role` is the element's implicit role. Pointing a native control at a custom-widget APG pattern documents a different component |
 | G3 Keyboard table non-empty for interactive components | blocker | |
-| G4 Keyboard matches the APG pattern | warning | Names divergence |
+| G4 Keyboard matches the referenced pattern | warning | The APG pattern, or the platform behaviour of the native element. Names divergence |
 | G5 Accessible-name strategy stated | blocker | |
 | G6 Focus model documented | warning | Roving tabindex vs. per-element |
 | G7 Target size ≥ 24×24 | warning | [2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum); exactly 24 = no tolerance |
@@ -194,7 +199,7 @@ deepening the failing one until it collides with a neighbouring state.
 
 ---
 
-## J · Text layout — run over the handoff frame AND the kit page
+## J · Text layout and containment — run over the handoff frame AND the kit page
 
 Full recipes, sweep script and heuristic tuning in
 [text-layout.md](text-layout.md).
@@ -209,6 +214,8 @@ Full recipes, sweep script and heuristic tuning in
 | J6 No multi-character text under 8px wide | blocker | A single glyph may legitimately be narrow; two cannot |
 | J7 No text overflowing a clipping ancestor | blocker | Compare against parent inner height, not the frame |
 | J8 Column layers are `FIXED` width | warning | A hugging label destroys row alignment |
+| J9 **No node extends past its parent's inner edges** | blocker | Walked from each section: every visible child lies within `paddingLeft … width − paddingRight` of its parent, ±0.5px. `J7` only catches overflow into a *clipping* ancestor, and the sheet deliberately clips nothing so focus rings can draw outside — so without `J9` every overflow is invisible. Checks each component, component set and instance as a box but **does not descend into them**: their internals are the component's own layout, and walking into a Focus variant is how this check gets switched off. One named exemption for decoration drawn outside a box in chrome — `focus-ring`, `halo`, `shadow` |
+| J10 **No `WRAP` container hugs horizontally** | blocker | `layoutWrap: 'WRAP'` with `layoutSizingHorizontal: 'HUG'` never wraps — it grows to fit every child on one line. It looks correct in the layer panel, because wrap is on. Must be `FILL` or `FIXED`. Same family as `J4` |
 
 **Heuristic tuning is part of the check.** The first version of this sweep flagged close to
 half the nodes in a frame, of which a handful were real. An over-eager sweep trains people to ignore it. Fixed-height
@@ -256,6 +263,11 @@ Rules and rationale in [visual-design.md](visual-design.md).
 | L14 Not every block is a card | warning | Thin sections paired side by side; prose uncarded; tint without border |
 | L15 **Anatomy pins sit in a gutter with leader lines** | warning | Placement rule for the pins `A13` requires. On the artwork they cover what they annotate and collide where parts nest |
 | L11 Kit page is laid out, nothing loose | warning | Cover with palette and type scale, components grouped in labelled cards, deprecated demoted |
+| L16 **Each token row's swatches are bound to that row's token** | blocker | `swatch-light` and `swatch-dark` fills are bound to the variable named in the row's `token` property. A kit placeholder left in place paints every row the same colour: a false redline, which is worse than a blank chip. Compare by variable id, resolved from the name — the assembler already has it |
+| L17 **Each swatch carries its own mode override** | blocker | `swatch-light.explicitVariableModes` pins the light mode and `swatch-dark` the dark one, for every multi-mode collection in the alias chain (`D5`). Without it both chips resolve in the frame's mode, the pair is identical, and the table claims a parity it never checked |
+| L18 No two consecutive rows render an identical swatch pair unless their tokens resolve identically | warning | The one-glance signature of an un-overridden placeholder. Compare the values the swatches resolve to against the values the rows' `token`s resolve to, in both modes — two tokens that legitimately share a neutral are not a finding |
+| L19 Non-colour rows carry no swatch | warning | Spacing, size, radius, typography and motion rows use `kind=value` and show the resolved value per mode. A colour chip on `spacing/*` means nothing, and a placeholder one means something false |
+| L20 Token table over ~25 rows is collapsed | warning | When the rows follow one naming pattern, render the pattern, one group in full and the other group headers with counts. The full rows stay in the frame, hidden, as the baseline — see frame-template.md `07 · Tokens`. A warning, not a blocker: a long table is unreadable, not wrong |
 
 ---
 

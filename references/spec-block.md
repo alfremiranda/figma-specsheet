@@ -48,6 +48,8 @@ parts:
 
 # ---- orthogonal state model ----
 # Anything that can co-occur is its OWN property, never a value of one variant.
+# Form controls: `invalid` and `filled` co-occur with hover and focus-visible, so they
+# are booleans here too, not extra `state` values (rubric F7).
 stateModel:
   variant:
     name: state
@@ -74,7 +76,9 @@ typography:
     letterSpacing: tracking/normal
   note: Variables rather than a text style, so weight varies by state without a second style.
 
-# ---- accessibility: from the APG pattern, not from memory ----
+# ---- accessibility: from the canonical reference, not from memory ----
+# pattern: the APG pattern where one exists. A native element with no APG pattern
+# (<select>, <label>, <input>) cites the WHATWG HTML spec or its MDN page instead.
 a11y:
   pattern: https://www.w3.org/WAI/ARIA/apg/patterns/tabs/
   role: tablist
@@ -141,7 +145,10 @@ Before writing:
 - `parts[]` lists every sub-component, each with an explicit `public` flag
 - `stateModel.booleans` covers every state that can co-occur with another
 - `precedence` is stated wherever two true states collapse to one visual
-- `a11y.pattern` is a real APG URL and `a11y.role` is that pattern's role
+- `a11y.pattern` is a real APG URL and `a11y.role` is that pattern's role — or, for a
+  native element with no APG pattern, a WHATWG HTML spec or MDN element URL and the
+  element's implicit role. Never a custom-widget APG pattern for a native control: that
+  documents a different component, with a different keyboard model
 - `keyboard` is non-empty for anything interactive
 - `typography.strategy` is one of the two valid values, and the bindings match it
 - `flags` mirrors the current audit — a stale `flags` block is worse than none

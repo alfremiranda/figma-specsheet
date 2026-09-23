@@ -137,7 +137,7 @@ PREFLIGHT
   file          Acme DS (aBcD1234EfGh5678IjKl)
   collections   Primitives ✓  Semantic ✓ (Light, Dark)  Typography ✓  Component ✓ (light, dark)
   scales        size 8 · radius 8 · spacing 14 · typography 41
-  docs-kit      v2 ✓
+  docs-kit      v3 ✓
   target        Tabs — COMPONENT 48:210
   mode          RE-AUDIT (frame 72:1180 · component changed since v1.1.0)
 ```

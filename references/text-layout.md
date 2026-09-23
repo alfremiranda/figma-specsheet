@@ -16,6 +16,8 @@ down five lines.
 | Text is clipped at the bottom | Tuning · check the style's line-height first |
 | A single glyph reports a tiny width | Tuning · legitimate, do not flag |
 | Content overflows a fixed-height cell | The sweep · overflow check |
+| A row, table or component set runs past the content column | The sweep · containment |
+| Wrap is on, and the row grew sideways instead of wrapping | The sweep · containment |
 
 **Run the sweep at the end of every build.** It is cheap and it catches what screenshots
 of one section will not.
@@ -173,7 +175,38 @@ const risky = root.findAll(n => (n.type === 'FRAME' || n.type === 'COMPONENT') &
   });
 ```
 
-**Both must return zero.**
+Plus containment — rubric `J9` and `J10`. The sheet clips nothing, so focus rings can draw
+outside their box; the clipping test above therefore never sees a table that runs past the
+content column. This one measures against the parent directly:
+
+```js
+const TOL = 0.5;
+const DECOR = /^(focus-ring|halo|shadow)\b/i;          // decoration drawn outside a box, by convention
+const OPAQUE = new Set(['COMPONENT_SET', 'COMPONENT', 'INSTANCE']);  // measured as a box, never entered
+
+const overflow = [];
+(function walk(p) {
+  if (!('children' in p)) return;
+  const auto = p.layoutMode && p.layoutMode !== 'NONE';
+  const left = auto ? p.paddingLeft || 0 : 0, right = p.width - (auto ? p.paddingRight || 0 : 0);
+  for (const c of p.children) {
+    if (!c.visible || DECOR.test(c.name)) continue;
+    if (c.x < left - TOL || c.x + c.width > right + TOL)
+      overflow.push({ node: c.name, parent: p.name, w: Math.round(c.width), inner: Math.round(right - left) });
+    if (!OPAQUE.has(c.type)) walk(c);
+  }
+})(section);   // once per section
+
+// wrap on, width hugging: the row grows instead of wrapping
+const wrapHug = root.findAll(n => n.layoutWrap === 'WRAP' && n.layoutSizingHorizontal === 'HUG');
+```
+
+**Not entering components is the exemption that matters.** Their internals are the
+component's own layout, and a Focus variant's ring legitimately sits outside the variant's
+box — walk into it and the check fires on every focusable component and gets switched off.
+The name convention covers only decoration drawn in the *chrome*.
+
+**All four must return zero.**
 
 ---
 

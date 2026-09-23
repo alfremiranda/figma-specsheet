@@ -74,6 +74,11 @@ dropped references satisfies the first and fails the second (§11).
 ```js
 if (frame.layoutMode === 'HORIZONTAL' && frame.counterAxisSizingMode !== 'AUTO')
   throw new Error(`${frame.name}: height will not hug`);
+if (frame.layoutWrap === 'WRAP' && frame.layoutSizingHorizontal === 'HUG')
+  throw new Error(`${frame.name}: wrap is on but width hugs — it will grow, not wrap`);
+const p = frame.parent, inner = p.width - (p.paddingLeft || 0) - (p.paddingRight || 0);
+if (frame.width > inner + 0.5)
+  throw new Error(`${frame.name}: ${Math.round(frame.width)} wide in a ${Math.round(inner)} column`);
 for (const t of frame.findAll(n => n.type === 'TEXT')) {
   const lh = lineHeightOf(t);
   if (t.textAutoResize === 'HEIGHT' && t.height > lh * 1.6 && t.characters.length < 24)
@@ -81,7 +86,8 @@ for (const t of frame.findAll(n => n.type === 'TEXT')) {
 }
 ```
 
-Catches `resize()`-after-sizing (§3) and starved `FILL` text (text-layout.md).
+Catches `resize()`-after-sizing (§3), starved `FILL` text, a wrap that cannot wrap, and a
+frame wider than the column it sits in (text-layout.md · containment).
 
 ### After deleting a variant
 

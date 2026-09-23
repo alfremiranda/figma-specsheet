@@ -1,5 +1,25 @@
 # figma-specsheet — Changelog
 
+## v3.3.0 — 2026-09-23
+
+Upstream feedback from a team that built one handoff frame and migrated three more to the
+kit. Every item was a sheet that shipped wrong while the rubric passed it. Minor bump:
+`G2` and the spec-block validation change what counts as correct.
+
+| # | Change | Reason |
+|---|---|---|
+| 101 | **New `L16`, `L17` (blockers) and `L18` (warning): token-row swatches are verified.** `docs-kit.md` now asserts both halves in the write | The kit documented the swatch override and nothing checked it. One sheet kept the placeholder binding on every row, so every token painted the same colour; another bound every row correctly and set no mode override, so light and dark were identical down the table. Both read as confident documentation. `L18` compares resolved values, not appearance, so two tokens that legitimately share a neutral do not fire |
+| 102 | **New `J9` (blocker): nothing extends past its parent's inner edges.** Sweep in `text-layout.md`, write-time assertion in `post-write-verification.md` | `J7` only sees overflow into a clipping ancestor, and the sheet clips nothing so focus rings can draw outside. Every overflow was invisible to the rubric — a row that grew past the column, a component set on a manual pitch, instances wider than their cells, captions wider than theirs. The check measures components as boxes and never enters them; that, not a name list, is what keeps it from firing on every Focus variant |
+| 103 | **New `J10` (blocker): no `WRAP` container hugs horizontally** | Wrap on and width hugging never wraps; it grows. It looks right in the layer panel, which is why it shipped |
+| 104 | **`_docs/Token Row` gains `kind = colour · value`; new `L19`.** Kit bumped to **v3** | Spacing, size, typography and motion rows had no documented treatment, so they carried the placeholder chips — a colour the token does not have. `value` shows the resolved value per mode in the same columns, so alignment survives and a density mode still shows its change. The kit's own rule bumps its version on any property change; v2 files are reported behind and offered the upgrade |
+| 105 | **Sanctioned collapse for long token tables; new `L20` (warning)** | A multi-axis component's table became a large share of the sheet, most rows repeating one pattern. Without a sanctioned answer every assembler picks its own. The collapsed rows stay in the frame, hidden, because `07 · Tokens` is the RE-AUDIT baseline and `C8` reads it — collapsing the display must not delete the baseline. `C8` now says so |
+| 106 | **`00 · Header` titles with the component's name** | The section name is `Header`; following it literally put "Header" at the top of a sheet. One sentence |
+| 107 | **`a11y.pattern` accepts WHATWG or MDN for native elements.** `G2`, `G4`, spec-block validation and `09 · Accessibility` updated | A native control with no APG pattern had nowhere correct to point, and pointing it at a custom-widget pattern documents a different keyboard model |
+| 108 | **`filled` and `error` documented — as booleans, not `state` values.** `06 · States`, the spec-block comment and `F7`'s test list | The feedback asked for them as `state` values. They co-occur with hover and focus-visible, so by `F7` they cannot be: a `state=error` field cannot be drawn with a focus ring. A file modelled that way now gets an `F7` finding instead of a template that accommodates it |
+| 109 | **New pitfall §21: an instance of a variant is named after its set** | An audit matching rows by layer name found none when the kit was published under a prefix, reported an empty table, and passed. The fix matches on the main component, and treats zero matches as a failed query |
+| 110 | **New pitfall §22: per-side `strokeWeight` on a RECTANGLE reads unbound.** `C18` reads the four sides | Produced a false "unbound focus ring" on a fully tokenised ring, and the combined-field fix is a silent no-op |
+| 111 | **§3 extended to section frames** | Resize-then-append leaves a section `FIXED` on both axes. §3 described the trap generally; the index now finds it by this symptom |
+
 ## v3.2.1 — 2026-08-21
 
 No rule changes. Everything here removes information about the file the skill was developed

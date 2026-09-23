@@ -70,7 +70,7 @@ YAML.
 
 ```yaml
 # _docs-kit · config
-kitVersion: v2
+kitVersion: v3
 chrome: generic            # generic | system
 locale: en-US
 severityOverrides:
@@ -284,6 +284,7 @@ decoration.
 | `token` | text |
 | `alias` | text |
 | `flag` | variant — `none` · `semantic-gap` · `primitive-justified` · `hardcoded` |
+| `kind` | variant — `colour` · `value` — added in kit v3 |
 
 `primitive-justified` renders **neutral**, not amber. Flagging a justified primitive as
 debt trains people to ignore the column.
@@ -291,6 +292,32 @@ debt trains people to ignore the column.
 Two swatch nodes, `swatch-light` and `swatch-dark`. The assembler **overrides their
 fills** (allowed inside an instance) and sets a mode override on each, so they are live
 references rather than painted approximations.
+
+**Both halves are required, and neither is visible when it is missing.** A row that keeps the
+kit's placeholder binding paints every token the same colour; a row with the right binding
+and no mode override paints light and dark identically. Both read as confident
+documentation, which is worse than a blank chip. Assert both in the write:
+
+```js
+for (const [name, modeId] of [['swatch-light', lightId], ['swatch-dark', darkId]]) {
+  const sw = row.findOne(n => n.name === name);
+  if (sw.fills[0]?.boundVariables?.color?.id !== tokenVar.id)
+    throw new Error(`${rowToken}: ${name} bound to the wrong variable`);
+  for (const col of modalCollections)                       // every multi-mode collection in the chain
+    if (sw.explicitVariableModes[col.id] !== modeIdFor(col, modeId))
+      throw new Error(`${rowToken}: ${name} has no ${col.name} mode override`);
+}
+```
+
+A binding that reads back correctly can still paint its literal inside an instance
+(figma-api-pitfalls.md §14). Screenshot one finished row before generating the rest.
+
+**Non-colour rows use `kind=value`.** Spacing, size, radius, typography and motion tokens —
+`spacing/8`, `size/icon/md`, `motion/duration/fast` — have no colour to show. `value` hides
+both swatches and renders the **resolved value per mode** as mono text in the same two
+fixed-width columns, so the row stays aligned and a density mode that changes a spacing
+value still shows it. A kit built before `kind` existed hides the swatch pair on those rows
+instead; never leave the placeholder chips, which document a colour the token does not have.
 
 `primitive-justified` renders neutral, not amber — it is an observation, not debt. Only
 `semantic-gap` and `hardcoded` read as warnings.

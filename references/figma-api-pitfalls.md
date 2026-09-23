@@ -35,6 +35,10 @@ number. Start here.
 | A frame you created `FIXED` is now `HUG` and growing | §3, §18 |
 | A section-name regex matched something that is not a section | §19 |
 | Instance counts change between calls without edits | §20 |
+| A section built by resize-then-append hugs wrongly or stays pinned | §3 |
+| `x.name === 'Token Row'` matches nothing, though the rows are there | §21 |
+| A focus ring reports an unbound `strokeWeight`, but the panel shows it bound | §22 |
+| `setBoundVariable('strokeWeight', …)` ran and nothing changed | §22 |
 
 
 **Text sizing has its own reference** — see [text-layout.md](text-layout.md). §3 and §4
@@ -107,6 +111,11 @@ node.primaryAxisSizingMode = 'AUTO';
 ```
 
 Symptom: components pinned at 10px tall, content overlapping the section above.
+
+**It is not only a text problem.** A section frame built by `resize()`-then-`appendChild`
+is `FIXED` on both axes by the time its content arrives, so it stays at the resized size
+instead of hugging. Set the sizing modes after the last `resize()`, for every frame you
+build, and assert them in the same script.
 
 ---
 
@@ -502,3 +511,52 @@ visited.
 Any instance count is a **lower bound**. Label it as one. Reporting a count as fact, to a user deciding
 whether to approve a breaking change, understates the blast radius they are approving.
 
+---
+
+## 21. An instance of a variant is named after the component set, not the variant
+
+A new instance takes its **component set's** name as its layer name. When the kit is
+published as `_docs/Token Row`, every row instance is named `_docs/Token Row` — so an audit
+that finds rows with `n.name === 'Token Row'` matches nothing, reports an empty table, and
+passes every check it would have run on the rows.
+
+```js
+// WRONG — depends on the layer name, which follows the set's name and any rename
+frame.findAll(n => n.type === 'INSTANCE' && n.name === 'Token Row')
+
+// CORRECT — identify by what the instance is, not what it is called
+const rows = [];
+for (const n of frame.findAll(n => n.type === 'INSTANCE')) {
+  const main = await n.getMainComponentAsync();
+  if ((main?.parent?.type === 'COMPONENT_SET' ? main.parent : main)?.id === tokenRowSetId) rows.push(n);
+}
+if (rows.length === 0) throw new Error('no Token Row instances found — check the match, not the table');
+```
+
+Treat **zero matches as a failure of the query** until proven otherwise. An empty result is
+the one thing an audit should never quietly accept.
+
+---
+
+## 22. `strokeWeight` on a RECTANGLE: bound per side, read as unbound
+
+A RECTANGLE's stroke weight can be bound per side (`strokeTopWeight`, `strokeRightWeight`,
+`strokeBottomWeight`, `strokeLeftWeight`). With all four bound, `boundVariables.strokeWeight`
+**reads empty**, and `setBoundVariable('strokeWeight', v)` on the same node is a silent
+no-op. A check that reads only the combined field reports an unbound focus ring on a ring
+that is fully tokenised — and a fix that writes the combined field changes nothing.
+
+```js
+const SIDES = ['strokeTopWeight', 'strokeRightWeight', 'strokeBottomWeight', 'strokeLeftWeight'];
+const b = node.boundVariables || {};
+const bound = b.strokeWeight || (node.type === 'RECTANGLE' && SIDES.every(k => b[k]));
+
+// binding one: write the sides on a RECTANGLE, then read them back
+if (node.type === 'RECTANGLE') for (const k of SIDES) node.setBoundVariable(k, borderVar);
+else node.setBoundVariable('strokeWeight', borderVar);
+const back = node.boundVariables || {};
+if (!(back.strokeWeight || SIDES.every(k => back[k]?.id === borderVar.id)))
+  throw new Error(`${node.name}: strokeWeight not bound`);
+```
+
+Rubric `C18` reads the four sides on a RECTANGLE for exactly this reason.

@@ -6,7 +6,7 @@
 
 Spec sheets rot. They get written once, the component changes, and nobody notices. This
 skill treats the sheet as a **build artifact**: it can create one from scratch, audit an
-existing one against a 121-check rubric, or re-audit after a designer edits the component and
+existing one against a 128-check rubric, or re-audit after a designer edits the component and
 lead with what changed.
 
 ![Structure of the generated handoff frame](docs/frame-structure.svg)
@@ -146,10 +146,10 @@ See [`references/`](references/) for the full rule set.
 SKILL.md                          Entry point — modes, preflight, the 14-step CREATE flow
 references/                       Loaded on demand, not up front
   post-write-verification.md      How every write proves it worked. Read before any write.
-  figma-api-pitfalls.md           16 numbered environment failure modes, with a symptom index
+  figma-api-pitfalls.md           22 numbered environment failure modes, with a symptom index
   text-layout.md                  Auto-layout sizing recipes and the FILL-is-a-promise rule
   token-rules.md                  Tier resolution, the closed property vocabulary, contrast gates
-  audit-rubric.md                 121 checks, weighted score, JSON output schema
+  audit-rubric.md                 128 checks, weighted score, JSON output schema
   visual-design.md                The sheet-on-canvas visual language
   frame-template.md               Section-by-section structure of the frame
   docs-kit.md                     The reusable documentation components + YAML config block

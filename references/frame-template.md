@@ -98,6 +98,11 @@ section is indistinguishable from an oversight.
 
 Identity row: component name, tag name, `_docs/Status Badge`. The component name carries
 the largest type in the frame — it is the title of the document, not a section heading.
+
+**This is the one section whose visible title is not its name.** The frame is named
+`00 · Header` for the layer panel and for discovery; its `_docs/Section Header` `title` is the
+**component's name** — `Tabs`, never `Header`. Following the section name literally gives a
+sheet whose first heading reads "Header".
 Type scale: component name 44, section title 28, subhead 20, section number 11, body 14.
 
 Then a one-line description
@@ -109,7 +114,7 @@ Then `_docs/Meta Row` × N. These are **load-bearing**, not decoration:
 ```
 ref             48:210          ← how the skill finds the component on re-run
 part set        48:396
-kit             v2               ← docs-kit version this frame was built against
+kit             v3               ← docs-kit version this frame was built against
 version         1.2.0
 owner           Ada Okonkwo       ← from the Figma account, never hardcoded
 last updated    2026-08-18
@@ -301,7 +306,14 @@ A matrix: states down, modes across.
 
 Required for anything interactive:
 `default · hover · focus-visible · active · disabled`
-plus whatever else exists: `loading · error · selected · read-only · unread`.
+plus whatever else exists: `loading · error · filled · selected · read-only · unread`.
+
+**Most of those extras are not values of `state`.** Form controls are where this bites: an
+invalid field can be focused and hovered, and a filled one can be anything. So `error` and
+`filled` are usually booleans (`invalid`, `filled`) beside a five-value `state`, exactly like
+`selected` and `unread` — rubric `F7`. A file that models them as `state` values cannot draw
+an errored field with a focus ring. That is an `F7` finding to report, not a template
+divergence to work around.
 
 **Interaction states cannot be captured at rest** — render them as instances with the
 state property forced. If a state is not reachable as a property, that is a blocker: an
@@ -325,7 +337,27 @@ One `_docs/Token Row` per bound property: property, component token, alias, flag
 live swatches carrying mode overrides.
 
 Rows are generated from live bindings, never transcribed. Include **size, radius and
-spacing** rows, not only colour — those are the ones that get hardcoded.
+spacing** rows, not only colour — those are the ones that get hardcoded. Those rows are
+`kind=value`: resolved value per mode, no swatch (docs-kit.md `_docs/Token Row`).
+
+### When the table is too long to read
+
+A component with a few variant axes binds the same properties once per combination, and the
+table becomes most of the sheet while saying the same thing over and over. **When a table
+exceeds ~25 rows and the rows follow one naming pattern** (`tabs/tab/<property>/<state>`),
+collapse it the same way every time, so sheets built by different runs do not drift apart:
+
+1. **State the pattern in prose**, naming each segment and its values.
+2. **Render one group in full** as the worked example — normally the default variant.
+3. **Keep every other group's header**, with its row count.
+4. **Keep the collapsed rows in the frame**, in a hidden frame named `baseline · <group>`.
+   This table is the RE-AUDIT baseline and `C8` compares it with live bindings, so a row
+   that is merely not shown must still exist. Hidden nodes are still found by `findAll`.
+
+Collapse only what the pattern fully explains. A row that breaks the pattern — a primitive
+fallback, a hardcoded value, a token that exists for one variant only — stays visible.
+Rubric `L20` raises a warning above the threshold, not a blocker: a long table is
+unreadable, not wrong.
 
 An unbound property appears as `⛔ hardcoded` and is a blocker.
 
@@ -367,7 +399,9 @@ Rendered **from** the spec block, never written independently — two sources wi
 - `_docs/Keyboard Row` per binding
 - Focus model: roving tabindex vs. per-element, and where focus starts
 - `_docs/Contrast Result` per pair **per mode**, alpha composited, passes included
-- Link to the source [APG pattern](https://www.w3.org/WAI/ARIA/apg/patterns/)
+- Link to the source: the [APG pattern](https://www.w3.org/WAI/ARIA/apg/patterns/) where one
+  exists; for a native element with no APG pattern (`<select>`, `<label>`), the WHATWG HTML
+  spec or the element's MDN page
 
 ---
 
