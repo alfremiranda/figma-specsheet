@@ -1,5 +1,14 @@
 # figma-specsheet — Changelog
 
+## v3.3.1 — 2026-09-23
+
+No rule changes. Two checks renumbered.
+
+| # | Change | Reason |
+|---|---|---|
+| 112 | **`A14 Properties render as a table` is now `A18`; `A15 Spec block is monospace` is now `A19`.** Entries 30 and 31 below refer to them by their old IDs | v3.2.0 added `A14` (sections resolve by type and parent) and `A15` (content width fixed first) without noticing both IDs were taken, so section A carried two checks under each. Findings and `delta` key on `id + node`, and every one of these checks anchors on a node in the same frame, so one check's finding could mark the other fixed, or hide it as already reported. The older pair moved because the v3.2.0 pair is the one entries 81 and 87 and the current docs describe. Count unchanged at 128 |
+| 113 | **`scripts/check.py` rejects duplicate rubric IDs** and checks the README's count against the rubric | The collision was a table row away from being caught. Nothing read the IDs as keys except the output the duplicates broke |
+
 ## v3.3.0 — 2026-09-23
 
 Upstream feedback from a team that built one handoff frame and migrated three more to the

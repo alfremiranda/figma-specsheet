@@ -118,6 +118,29 @@ if not re.search(r"^## v\d+\.\d+(\.\d+)?", (ROOT / "CHANGELOG.md").read_text(enc
 else:
     notes.append("changelog version heading ok")
 
+# 9. rubric check IDs are unique — findings and `delta` key on `id + node`, so a
+#    duplicate ID merges two checks' findings; the README's count must match the rubric
+RUBRIC = ROOT / "references" / "audit-rubric.md"
+CHECK_ROW = _rx.compile(r"^\| *\**([A-LØ]\d+[a-z]?)\b")
+seen: dict[str, int] = {}
+for i, line in enumerate(RUBRIC.read_text(encoding="utf-8").splitlines(), 1):
+    m = CHECK_ROW.match(line)
+    if not m:
+        continue
+    cid = m.group(1)
+    if cid in seen:
+        errors.append(
+            f"{RUBRIC.relative_to(ROOT)}:{i}: duplicate check ID `{cid}` (first at line {seen[cid]})"
+            f" — findings keyed on `id + node` would collide"
+        )
+    else:
+        seen[cid] = i
+claimed = re.search(r"(\d+)[- ]check rubric", (ROOT / "README.md").read_text(encoding="utf-8"))
+if claimed and int(claimed.group(1)) != len(seen):
+    errors.append(f"README.md claims a {claimed.group(1)}-check rubric; audit-rubric.md has {len(seen)} unique IDs")
+if not any("duplicate check ID" in e for e in errors):
+    notes.append(f"{len(seen)} rubric check IDs, all unique")
+
 for n in notes:
     print(f"  ok  {n}")
 for e in errors:
