@@ -65,10 +65,10 @@ rebindings, token renames.
 | A13 **Every legend entry has an anchored pin** | blocker | A numbered legend with zero pins is a labelled list — the numbers reference nothing. Every entry needs a pin anchored to the part it names, by geometry rather than by guess. Where the pin sits is `L15` |
 | A14 **Sections resolve by type and parent, not by name alone** | blocker | `findAll` on a bare `/^\d\d · /` also matches auto-named TEXT nodes. Assert the count equals the number of section frames; a mismatch means something downstream will parse a table cell as a section |
 | A15 **Content width was fixed before the first section** | warning | Every table is laid out against it. If the visual pass moves it afterwards, they all overflow |
-| A14 Properties render as a table, not prose | warning | `_docs/Property Row`, header + one body row per property |
-| A15 Spec block is monospace | warning | Existing mono style if the file has one, else a generic mono family applied to the node. Never create a style |
 | A16 **Docs chrome uses no file text styles** | warning | Every chrome text node has `textStyleId === ''` and a family from the generic scale. A kit bound to one file's style names works in one file |
 | A17 Documented component keeps its own type | blocker | The restyle sweep must skip the component and its instances. Documentation that restyles its subject is lying about it |
+| A18 Properties render as a table, not prose | warning | `_docs/Property Row`, header + one body row per property |
+| A19 Spec block is monospace | warning | Existing mono style if the file has one, else a generic mono family applied to the node. Never create a style |
 
 ---
 
