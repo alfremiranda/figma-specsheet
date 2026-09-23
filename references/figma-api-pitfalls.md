@@ -396,9 +396,13 @@ after. A styling pass that reduced the count damaged content.
 ## 16. Reading a node after `remove()` throws — even in the same loop iteration
 
 ```js
+// identify pins by their main component, not their layer name (§21) — an instance of
+// `_docs/Callout Pin` is named `_docs/Callout Pin`, so `c.name === 'Pin'` matches nothing
+const isPin = async n => n.type === 'INSTANCE' && (await n.getMainComponentAsync())?.id === pinMainId;
+
 // WRONG
 for (const c of [...frame.children]) {
-  if (c.type === 'INSTANCE' && c.name === 'Pin') c.remove();
+  if (await isPin(c)) c.remove();
   if (c.name === 'leader') c.remove();      // c is already gone
 }
 // Error: in get_name: The node with id "542:1280" does not exist
@@ -411,7 +415,7 @@ next statement.
 ```js
 // CORRECT — decide first, then remove and move on
 for (const c of [...frame.children]) {
-  const drop = (c.type === 'INSTANCE' && c.name === 'Pin') || c.name === 'leader';
+  const drop = (await isPin(c)) || c.name === 'leader';
   if (drop) { c.remove(); continue; }
 }
 ```
