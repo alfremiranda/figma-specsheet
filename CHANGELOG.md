@@ -1,5 +1,18 @@
 # figma-specsheet — Changelog
 
+## v3.5.0 — 2026-10-12
+
+A full CREATE spent more of its budget on rediscovery and rewritten helpers than on the
+sheet. No rule changes; this is how the skill spends tokens and calls.
+
+| # | Change | Reason |
+|---|---|---|
+| 125 | **New `references/script-kit.md`**: `PREFLIGHT_TARGET`, `PREFLIGHT_KIT`, `PRELUDE` and `SWEEP`, each run verbatim against a real file before being committed | The run composed the same text/frame/instance helpers in every build call, re-derived the token resolver, and had one build fail and retry on a hand-written check. Pasting tested code is shorter to emit and does not fail in new ways |
+| 126 | **Preflight is two parallel calls** | It took about ten round trips — pages, kit ids, the component, its variants, the token inventory, and a second sheet read only to copy its text styles. The chrome constants now live in `PRELUDE` |
+| 127 | **A CREATE is four build calls, one per chapter group**, plus one sweep and one config merge | A call per section repeats the prelude thirteen times. Every build call throws if its group already exists, so a retry costs one call, not a cleanup |
+| 128 | **References load by need.** `SKILL.md`'s load table says what to read in full and what to read for its symptom index | Roughly 40K tokens of references, and the old table asked for three of them in full before any write. `figma-api-pitfalls.md` is a lookup, not a briefing |
+| 129 | **Budget rules: ids and counts instead of dumps; a screenshot after editing the component and one per chapter group** | One layer-tree readout cost more than the build call that used it, and screenshots were taken after nearly every step |
+
 ## v3.4.0 — 2026-10-12
 
 Found by running the v3.3.0 checks against an existing sheet built by an earlier version,

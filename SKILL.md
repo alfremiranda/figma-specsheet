@@ -55,22 +55,36 @@ should never fire on a component with a valid spec block.
 `figma-use` is a hard prerequisite before any `use_figma` call. For component-set and
 variable work, load `figma-generate-library` too.
 
-| Reference | Load when |
-|---|---|
-| [references/post-write-verification.md](references/post-write-verification.md) | **Before any write.** How every write script proves it worked |
-| [references/figma-api-pitfalls.md](references/figma-api-pitfalls.md) | **Before any write.** Environment constraints that silently corrupt output |
-| [references/text-layout.md](references/text-layout.md) | **Before any write, and again after.** Text sizing recipes + the mandatory end-of-build sweep |
+**Load by need, not up front.** The references total roughly 40K tokens; a run that reads
+them all before starting spends most of its budget before the first call. Read in full only
+what the row says. Everything else is read **for its symptom index** and then section by
+section, when the symptom appears.
+
+| Reference | Load when | Read |
+|---|---|---|
+| [references/script-kit.md](references/script-kit.md) | **Every run, first.** Preflight, the build prelude, the end-of-build sweep — tested, pasted rather than rewritten | In full |
+| [references/post-write-verification.md](references/post-write-verification.md) | **Before any write.** How every write script proves it worked | In full |
+| [references/figma-api-pitfalls.md](references/figma-api-pitfalls.md) | **Before any write.** Environment constraints that silently corrupt output | Symptom index; a section when it applies |
+| [references/text-layout.md](references/text-layout.md) | A text or layout finding from `SWEEP` | Symptom index; a recipe when it applies |
 | [references/sub-components.md](references/sub-components.md) | **Before documenting anything with repeated or stateful parts.** Extract / public-vs-internal / rollup |
-| [references/frame-template.md](references/frame-template.md) | CREATE, or auditing structure |
-| [references/docs-kit.md](references/docs-kit.md) | Preflight, or the kit is missing/stale |
-| [references/visual-design.md](references/visual-design.md) | **Last, after content is correct.** Grouping, spacing scale, figure/ground, measure |
-| [references/token-rules.md](references/token-rules.md) | Any token resolution, creation, or mode work |
-| [references/audit-rubric.md](references/audit-rubric.md) | AUDIT / RE-AUDIT |
-| [references/spec-block.md](references/spec-block.md) | Writing or validating `08 · Spec` |
+| [references/frame-template.md](references/frame-template.md) | CREATE, or auditing structure | The sections being built |
+| [references/docs-kit.md](references/docs-kit.md) | The kit is missing, behind, or a kit component is being changed | The components involved |
+| [references/visual-design.md](references/visual-design.md) | Restyling, or a visual finding. The default chrome is already in `PRELUDE` | When it applies |
+| [references/token-rules.md](references/token-rules.md) | Any token resolution, creation, or mode work | In full, once |
+| [references/audit-rubric.md](references/audit-rubric.md) | AUDIT / RE-AUDIT. A CREATE validates with `SWEEP` and reads a check's row only when it fails | In full for AUDIT |
+| [references/spec-block.md](references/spec-block.md) | Writing or validating `08 · Spec` | In full |
+
+**Spend calls the way script-kit.md says**: two parallel preflight calls, one build call per
+chapter group, one sweep, one config merge. Return ids and counts, not dumps; screenshot
+once after editing the component and once per chapter group at the end.
 
 ---
 
 ## Preflight — every run, both modes
+
+**Run `PREFLIGHT_TARGET` and `PREFLIGHT_KIT` from [script-kit.md](references/script-kit.md), in
+parallel, in one message.** Between them they answer steps 1–8 below. The steps say what
+the answers must be; the scripts are how to get them without a call per step.
 
 Stop and report on failure. Never work around a failed preflight.
 
@@ -146,7 +160,10 @@ PREFLIGHT
 
 ## CREATE
 
-One `use_figma` call per numbered step. Validate returned IDs before continuing.
+Steps 1–8 need a call each at most, and several read-only ones can share a call. The frame
+itself (steps 9–12) is **four calls, one per chapter group** — `PRELUDE` from
+[script-kit.md](references/script-kit.md) at the top of each. Validate returned IDs before
+continuing.
 
 1. **Read the component set.** `componentPropertyDefinitions` from the COMPONENT_SET
    only — never a variant.
@@ -183,7 +200,7 @@ One `use_figma` call per numbered step. Validate returned IDs before continuing.
    the hero's is a silent clip.
 10. **Render both modes.** `03 · Modes` renders the component once per mode via
    `setExplicitVariableModeForCollection` on a **frame** (not an instance — see pitfalls).
-11. **Run the text-layout sweep** over the handoff frame *and* the kit page. Both must
+11. **Run `SWEEP`** (script-kit.md) over the handoff frame *and* the kit page. Both must
     return zero issues and zero risky containers. This is not optional — starved `FILL`
     text is the single most common defect in agent-built Figma, every script reports
     success while it happens, and a screenshot of one section will not reveal it.

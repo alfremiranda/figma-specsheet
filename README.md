@@ -145,6 +145,7 @@ See [`references/`](references/) for the full rule set.
 ```
 SKILL.md                          Entry point — modes, preflight, the 14-step CREATE flow
 references/                       Loaded on demand, not up front
+  script-kit.md                   Tested preflight, build prelude and sweep scripts — pasted, not rewritten
   post-write-verification.md      How every write proves it worked. Read before any write.
   figma-api-pitfalls.md           24 numbered environment failure modes, with a symptom index
   text-layout.md                  Auto-layout sizing recipes and the FILL-is-a-promise rule
