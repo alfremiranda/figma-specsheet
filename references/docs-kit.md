@@ -61,7 +61,7 @@ Scanning the cover's text nodes and taking the first N will miss it on any kit w
 has grown — and reporting "no config block" on a kit that has one leads the write-back to
 overwrite a block it never read. `severityOverrides` are decisions the user made in earlier
 runs; a wholesale rewrite destroys them silently, recoverable only from Figma version
-history. Read, update `lastRun` only, write back. If the block will not parse, **stop and
+history. Read, update **this component's entry under `runs`** only, write back. If the block will not parse, **stop and
 report** rather than replacing it.
 
 `setPluginData` does not exist and frames have no `description`, so run state has nowhere to
@@ -76,23 +76,35 @@ locale: en-US
 severityOverrides:
   H3: info                 # RTL example not required for this system
   G7: info
-lastRun:
-  component: Tabs
-  node: "48:210"
-  at: "2026-08-18"
-  score: 84
-  blockers: 0
-  findings:
-    - { id: C13, node: "502:8" }
-    - { id: H3,  node: "523:1387" }
+runs:                      # one entry per component — the kit documents many
+  Tabs:
+    node: "48:210"
+    at: "2026-08-18"
+    score: 84
+    blockers: 0
+    findings:
+      - { id: C13, node: "502:8" }
+      - { id: H3,  node: "523:1387" }
+  Badge:
+    node: "330:44"
+    at: "2026-08-20"
+    blockers: 1
+    findings:
+      - { id: B3, node: "330:44" }
 ```
+
+**Keyed by component, because the kit is shared.** A single `lastRun` slot is overwritten by
+whichever component ran last, so the next run on any other component has nothing to diff
+against and reports every finding as new. A block that still has a legacy `lastRun` is
+migrated on the next write: it becomes that component's entry under `runs`. `MERGE_RUN` in
+[script-kit.md](script-kit.md) does both.
 
 **Read it in preflight, write it at the end of every run.** Three things it buys:
 
 1. **The questions stop repeating.** Chrome mode, kit version and locale are answered once.
 2. **Severity overrides become real.** "That's deliberate for us" downgrades a check
    permanently instead of being re-argued each run.
-3. **Trend comparison.** Compare this run's findings to `lastRun.findings` keyed on
+3. **Trend comparison.** Compare this run's findings to `runs.<component>.findings` keyed on
    `id + node` and report the delta — *3 fixed, 1 new since 2026-08-18* — which is what
    makes repeat runs feel like progress rather than repetition.
 

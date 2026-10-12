@@ -121,7 +121,7 @@ Stop and report on failure. Never work around a failed preflight.
 6. **Text styles readable.** `getLocalTextStylesAsync()` returns > 0.
 7. **Target located.** Resolve by node-id or name. More than one match → list and ask.
 8. **Read the kit config block** (docs-kit.md) — chrome mode, locale, severity overrides
-   and `lastRun`. Anything answered there is not asked again. `lastRun.findings` is what
+   and this component's entry under `runs`. Anything answered there is not asked again. `runs.<component>.findings` is what
    makes the run report a delta rather than a repeat.
 
    **Find it by name, never by scanning:**
@@ -210,7 +210,7 @@ continuing.
 13. **Merge the run into the kit config block** — score, blocker count, findings keyed
     on `id + node` — so the next run reports a delta.
 
-    **Merge, never replace.** Read the block, update `lastRun` only, and preserve everything
+    **Merge, never replace.** Read the block, update this component's entry under `runs` only (`MERGE_RUN` in script-kit.md), and preserve everything
     else. `severityOverrides` are decisions the user made during earlier runs; a wholesale
     rewrite destroys them silently and they are not recoverable except from Figma version
     history. If the block cannot be parsed, stop and report — do not overwrite it.

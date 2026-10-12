@@ -11,6 +11,7 @@ same helpers fresh on every call is where most of a run's tokens and retries wen
 | Text, frames, kit instances, sections, mode-pinned cells | `PRELUDE` |
 | Resolving a token through its alias chain; alpha-composited contrast | `PRELUDE` · `resolve`, `over`, `ratio` |
 | The end-of-build validation: J1–J10, A9, A12, A14, L16–L19 | `SWEEP` |
+| Recording the run in the kit config, one entry per component | `MERGE_RUN` |
 
 ---
 
@@ -73,16 +74,22 @@ Issue in the same message as `PREFLIGHT_TARGET`. Reads the config block and the 
 component ids — the ids every build call needs — so nothing looks them up again.
 
 ```js
+const COMPONENT = 'Badge';
 const kit = figma.root.children.find(p => p.name === '_docs-kit');
 if (!kit) return { kit: 'missing' };
 await figma.setCurrentPageAsync(kit);
 const cfg = kit.findOne(n => n.type === 'TEXT' && n.name === 'config');
+// everything above `runs:`, plus this component's entry only — the block grows with every component documented
+const text = cfg?.characters ?? '';
+const head = text.split(/^runs:\s*$/m)[0].replace(/^lastRun:[\s\S]*$/m, '').trim();
+const run = (text.match(new RegExp(`^  ${COMPONENT}:\\s*\\n((?:    .*\\n?)*)`, 'm')) || [])[1] ?? null;
+const legacy = /^lastRun:/m.test(text);
 const ids = {};
 for (const n of kit.findAllWithCriteria({ types: ['COMPONENT'] })) {
   const owner = n.parent.type === 'COMPONENT_SET' ? n.parent.name : n.name;
   if (owner.startsWith('_docs/')) (ids[owner.slice(6)] ??= {})[n.parent.type === 'COMPONENT_SET' ? n.name : '-'] = n.id;
 }
-return { config: cfg ? cfg.characters.slice(0, 1200) : null, ids };
+return { config: cfg ? head : null, run, legacyLastRun: legacy, ids };
 ```
 
 ---
@@ -208,3 +215,42 @@ return { sections: sections.length, nameMatches: root.findAll(n => /^\d\d · /.t
 
 Token-row swatch checks (`L16`–`L19`) need the resolver from `PRELUDE`; run them in the same
 call by pasting the resolver above this block.
+
+---
+
+## `MERGE_RUN`
+
+The last call of every run. Updates **this component's entry under `runs`** and nothing else;
+a legacy single `lastRun` is migrated into `runs` on the way. Fill `RUN` with the run's YAML,
+unindented. `SWEEP` can share the last build call; this one cannot — it is on the kit page.
+
+```js
+const COMPONENT = 'Badge';
+const RUN = `node: "330:44"
+at: 2026-10-12
+counts: { blockers: 1, warnings: 2, info: 1 }
+findings:
+  - { id: B3, node: "330:44" }`;
+const kit = figma.root.children.find(p => p.name === '_docs-kit'); await figma.setCurrentPageAsync(kit);
+const cfg = kit.findOne(n => n.type === 'TEXT' && n.name === 'config');
+if (!cfg) throw new Error('config block not found — never write one blind');
+for (const s of cfg.getStyledTextSegments(['fontName'])) await figma.loadFontAsync(s.fontName);
+const KEY = /^([A-Za-z][\w-]*):/;
+const blocks = []; for (const l of cfg.characters.split('\n')) { if (KEY.test(l) || !blocks.length) blocks.push([l]); else blocks[blocks.length - 1].push(l); }
+const keyOf = b => (b[0].match(KEY) || [])[1];
+const runs = new Map();
+const ri = blocks.findIndex(b => keyOf(b) === 'runs');
+if (ri >= 0) { let cur = null; for (const l of blocks[ri].slice(1)) { const m = l.match(/^  ([^\s:][^:]*):\s*$/);
+  if (m) runs.set(cur = m[1], []); else if (cur && l.startsWith('    ')) runs.get(cur).push(l.slice(4)); } }
+const li = blocks.findIndex(b => keyOf(b) === 'lastRun');                   // legacy single slot
+if (li >= 0) { const body = blocks[li].slice(1).filter(l => l.startsWith('  ')).map(l => l.slice(2));
+  const c = (body.find(l => l.startsWith('component:')) || '').split(':')[1]?.trim();
+  if (c && !runs.has(c)) runs.set(c, body.filter(l => !l.startsWith('component:'))); }
+runs.set(COMPONENT, RUN.split('\n'));
+const kept = blocks.filter((b, i) => i !== li && i !== ri);
+const keysBefore = kept.map(keyOf).filter(Boolean);
+cfg.characters = [...kept, ['runs:', ...[...runs].flatMap(([c, body]) => [`  ${c}:`, ...body.map(l => '    ' + l)])]].map(b => b.join('\n')).join('\n');
+const keysAfter = cfg.characters.split('\n').map(l => (l.match(KEY) || [])[1]).filter(Boolean);
+if (keysBefore.some(k => !keysAfter.includes(k))) throw new Error('merge dropped a top-level key');
+return { mutatedNodeIds: [cfg.id], runs: [...runs.keys()], migratedLegacy: li >= 0 };
+```

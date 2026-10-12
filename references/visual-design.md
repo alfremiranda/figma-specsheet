@@ -221,7 +221,7 @@ onto one axis does not.
 Pins dropped onto the component cover the thing they are annotating, collide where parts
 nest, and read as damage rather than annotation.
 
-Put them in a **left gutter** with leader lines:
+For stacked parts, the **left gutter** with leader lines:
 
 ```
 gutter 40 ─ pin 24 ─ leader hairline ─── artwork at x 132 ─── legend at artwork right + 104

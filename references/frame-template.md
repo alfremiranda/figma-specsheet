@@ -182,7 +182,8 @@ and an unmentioned one look identical.
 
 ## 02 · Anatomy
 
-An instance with `_docs/Callout Pin` instances **in a left gutter**, each joined to its
+An instance with `_docs/Callout Pin` instances **in a gutter on the axis the parts do not
+spread along** — left for stacked parts, below for inline ones (visual-design.md §4b) — each joined to its
 part by a leader line, plus a numbered legend beside the artwork.
 
 **The pins are the whole point.** A numbered legend with no pins is a labelled list — the

@@ -149,6 +149,9 @@ Before writing:
   native element with no APG pattern, a WHATWG HTML spec or MDN element URL and the
   element's implicit role. Never a custom-widget APG pattern for a native control: that
   documents a different component, with a different keyboard model
+- a **non-interactive** component (badge, divider, avatar) writes `pattern: none` with the
+  role it renders — usually `none` — and `keyboard: []`. Citing a generic element spec to
+  fill the field documents nothing
 - `keyboard` is non-empty for anything interactive
 - `typography.strategy` is one of the two valid values, and the bindings match it — or
   `none`, with a note, for a component that renders no text of its own (a checkbox, a

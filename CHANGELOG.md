@@ -1,5 +1,15 @@
 # figma-specsheet — Changelog
 
+## v3.5.1 — 2026-10-12
+
+Three gaps found by the first run on v3.5.0. No check changes.
+
+| # | Change | Reason |
+|---|---|---|
+| 130 | **The kit config keeps one run per component, under `runs`.** A legacy `lastRun` is migrated on the next write. New `MERGE_RUN` in script-kit.md; `PREFLIGHT_KIT` returns only the target component's entry | A single `lastRun` slot is overwritten by whichever component ran last. Recording a second component erased the first one's findings, so its next re-audit would have had nothing to diff against and reported everything as new. "Merge, never replace" was followed exactly — the schema itself was the problem |
+| 131 | **`frame-template.md` no longer says "left gutter"** — it points at the axis rule in visual-design.md §4b | §4b already chooses the gutter from how the parts spread. The template contradicted it, and once references load by need, the template is the line that gets read |
+| 132 | **Non-interactive components write `a11y.pattern: none`.** `G2` applies to interactive components | The schema demanded a canonical pattern for a badge, which has none. The only way to satisfy it was to cite a generic element spec, which documents nothing |
+
 ## v3.5.0 — 2026-10-12
 
 A full CREATE spent more of its budget on rediscovery and rewritten helpers than on the

@@ -166,7 +166,7 @@ deepening the failing one until it collides with a neighbouring state.
 | Check | Sev | Detail |
 |---|---|---|
 | G1 Spec block present and valid YAML | blocker | |
-| G2 `a11y.pattern` is a real, canonical reference and `role` matches it | blocker | An APG pattern where one exists. A native element with no APG pattern (`<select>`, `<label>`, `<input>`) cites the WHATWG HTML spec or its MDN page instead, and `role` is the element's implicit role. Pointing a native control at a custom-widget APG pattern documents a different component |
+| G2 `a11y.pattern` is a real, canonical reference and `role` matches it | blocker | Interactive components only — a non-interactive one writes `pattern: none` (spec-block.md). An APG pattern where one exists. A native element with no APG pattern (`<select>`, `<label>`, `<input>`) cites the WHATWG HTML spec or its MDN page instead, and `role` is the element's implicit role. Pointing a native control at a custom-widget APG pattern documents a different component |
 | G3 Keyboard table non-empty for interactive components | blocker | |
 | G4 Keyboard matches the referenced pattern | warning | The APG pattern, or the platform behaviour of the native element. Names divergence |
 | G5 Accessible-name strategy stated | blocker | |
@@ -316,7 +316,7 @@ Emit alongside the prose report, so CI can gate on it and the next run can diff 
 }
 ```
 
-`delta` compares against `lastRun.findings` in the kit config block, keyed on `id + node`.
+`delta` compares against `runs.<component>.findings` in the kit config block, keyed on `id + node`.
 
 ---
 
