@@ -1,5 +1,24 @@
 # figma-specsheet — Changelog
 
+## v3.4.0 — 2026-10-12
+
+Found by running the v3.3.0 checks against an existing sheet built by an earlier version,
+then by a full CREATE on a component that had to be restructured first.
+Minor bump: `L16` changes what counts as correct, and `L17` drops from blocker to warning.
+
+| # | Change | Reason |
+|---|---|---|
+| 115 | **`L16` accepts a painted swatch whose colour equals the token's resolved value in that mode.** A bound swatch still needs its mode override; the old `L17` blocker folds into `L16` | The sheet's swatches were painted, not bound — almost certainly a deliberate workaround for §14 — and every one matched its token in both modes. v3.3.0 raised a blocker on every colour row of a sheet whose colours were all correct. A rubric that demands bindings the file cannot render is asking for the wrong thing; what matters is that the chip shows the token |
+| 116 | **`L17` is now a warning that counts painted swatches as debt** | A painted swatch is right today and wrong the next time the token changes. Recomputing `L16` on every audit is what catches that, so the risk is drift, not a wrong value. Counting it keeps the debt visible |
+| 117 | **`L18` compares what each swatch shows** — the bound variable in its pinned mode, or the painted colour | It compared bound variables only, so on a painted sheet it had nothing to compare and fell silent |
+| 118 | **`docs-kit.md`: try bound on one row, screenshot it, fall back to painted.** The write assertion accepts either and checks the right thing for each | The kit asked for bound swatches; §14 says bound fills inside instances can paint their literal. The guidance contradicted the pitfalls file in the same skill |
+| 119 | **§14 is not universal.** Bound RECTANGLE swatches with a mode override rendered correctly in a full CREATE | The first real test of the bound path. The pitfall was learned on a FRAME fill and had been read as a rule for every paint inside an instance |
+| 120 | **New pitfall §23: shadow `spread` is ignored on a frame that does not clip** | A cloned focus variant drew no ring while its effects read back identical to the one that did. Only a screenshot showed it |
+| 121 | **New pitfall §24: opacity variables are 0–100** | An opacity primitive stored as `0.5` rendered disabled variants at 0.5% in more than one component. Every binding reported correct |
+| 122 | **The write-time collapse check exempts stroked lines** | It threw on an indeterminate dash — a zero-height line by design — and aborted a correct build |
+| 123 | **`typography.strategy: none`** for components that render no text | The schema had no valid value for a checkbox. A spec block either lied or failed validation |
+| 124 | **`_docs/Empty Section`: set `title` too.** Kit upgrades by clone now point at §11 | A skipped section rendered under another section's default title; a kit upgrade lost every text reference in its cloned variants — §11, already documented, missed at the moment it applied |
+
 ## v3.3.1 — 2026-09-23
 
 No rule changes. Two checks renumbered, one example corrected.

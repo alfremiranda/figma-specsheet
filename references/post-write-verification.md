@@ -46,7 +46,7 @@ does not need to assert text.
 | Assert | Why |
 |---|---|
 | Every returned ID resolves via `getNodeByIdAsync` | A removed or replaced node returns null |
-| No node has `width < 1` or `height < 1` | The collapse signature |
+| No node has `width < 1` or `height < 1` | The collapse signature. **Exempt stroked lines** — a `VECTOR` or `LINE` with a stroke is legitimately zero on one axis (a dash, a rule). Flag it only when it is under 1 on both |
 
 ### After binding a paint
 

@@ -289,28 +289,41 @@ decoration.
 `primitive-justified` renders **neutral**, not amber. Flagging a justified primitive as
 debt trains people to ignore the column.
 
-Two swatch nodes, `swatch-light` and `swatch-dark`. The assembler **overrides their
-fills** (allowed inside an instance) and sets a mode override on each, so they are live
-references rather than painted approximations.
+Two swatch nodes, `swatch-light` and `swatch-dark`, each showing the row's token in one
+mode. There are two ways to do that, and which one works depends on the file:
 
-**Both halves are required, and neither is visible when it is missing.** A row that keeps the
-kit's placeholder binding paints every token the same colour; a row with the right binding
-and no mode override paints light and dark identically. Both read as confident
-documentation, which is worse than a blank chip. Assert both in the write:
+| | How | Holds when the token changes |
+|---|---|---|
+| **Bound** (preferred) | Fill bound to the token's variable, plus a mode override on each swatch | Yes |
+| **Painted** | Fill set to the token's resolved colour in that swatch's mode | No — rubric `L17` records it as debt |
+
+**Try bound first, on one row, and screenshot it.** Bound fills set inside an instance can
+read back as bound and paint their literal anyway (figma-api-pitfalls.md §14). If the
+screenshot shows the literal, paint every row instead and say so in the run report. A
+correct painted swatch beats a bound one that draws the wrong colour.
+
+**Whichever you choose, both halves are required and neither is visible when it is
+missing.** A row that keeps the kit's placeholder paints every token the same colour; a
+bound row with no mode override paints light and dark identically. Both read as confident
+documentation, which is worse than a blank chip. Assert the result in the write:
 
 ```js
 for (const [name, modeId] of [['swatch-light', lightId], ['swatch-dark', darkId]]) {
   const sw = row.findOne(n => n.name === name);
-  if (sw.fills[0]?.boundVariables?.color?.id !== tokenVar.id)
-    throw new Error(`${rowToken}: ${name} bound to the wrong variable`);
-  for (const col of modalCollections)                       // every multi-mode collection in the chain
-    if (sw.explicitVariableModes[col.id] !== modeIdFor(col, modeId))
-      throw new Error(`${rowToken}: ${name} has no ${col.name} mode override`);
+  const fill = sw.fills[0];
+  if (fill?.boundVariables?.color) {                         // bound
+    if (fill.boundVariables.color.id !== tokenVar.id)
+      throw new Error(`${rowToken}: ${name} bound to the wrong variable`);
+    for (const col of modalCollections)                     // every multi-mode collection in the chain
+      if (sw.explicitVariableModes[col.id] !== modeIdFor(col, modeId))
+        throw new Error(`${rowToken}: ${name} has no ${col.name} mode override`);
+  } else {                                                   // painted
+    const want = await resolveColour(tokenVar, modeId);      // the shared resolver, alias chain followed
+    if (!sameColour(fill?.color, want))
+      throw new Error(`${rowToken}: ${name} painted a colour the token does not resolve to`);
+  }
 }
 ```
-
-A binding that reads back correctly can still paint its literal inside an instance
-(figma-api-pitfalls.md §14). Screenshot one finished row before generating the rest.
 
 **Non-colour rows use `kind=value`.** Spacing, size, radius, typography and motion tokens —
 `spacing/8`, `size/icon/md`, `motion/duration/fast` — have no colour to show. `value` hides
@@ -400,6 +413,9 @@ Dashed placeholder for a section that is required but unfilled, or deliberately 
 | `title` | text |
 | `reason` | text |
 
+**Set both.** The kit's default `title` names another section, so an instance with only
+`reason` set reads as the wrong section. Title it `NN · Name — not applicable`.
+
 Its presence is an audit `warning` when content is expected, and an `info` when the
 section is legitimately not applicable. Either way the reason is stated — a silently
 absent section is indistinguishable from an oversight.
@@ -425,7 +441,11 @@ The override is what matters, and it works on any frame.
 ## Versioning
 
 Version string on the kit page's cover text — there is no plugin data to hold it. Bump on
-any structural or property-name change. On upgrade: report every handoff frame instancing
+any structural or property-name change.
+
+**Adding a variant axis by cloning variants triggers §11** (figma-api-pitfalls.md): every
+text layer in the clones loses its property reference. Re-point them in the same script, and
+verify on an instance that the rendered `characters` match the property values. On upgrade: report every handoff frame instancing
 the changed components, show the property diff, wait for approval, then update the mains.
 
 Never delete a kit component. Rename with `⚠️ deprecated · ` and set its description so

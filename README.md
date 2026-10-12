@@ -146,7 +146,7 @@ See [`references/`](references/) for the full rule set.
 SKILL.md                          Entry point — modes, preflight, the 14-step CREATE flow
 references/                       Loaded on demand, not up front
   post-write-verification.md      How every write proves it worked. Read before any write.
-  figma-api-pitfalls.md           22 numbered environment failure modes, with a symptom index
+  figma-api-pitfalls.md           24 numbered environment failure modes, with a symptom index
   text-layout.md                  Auto-layout sizing recipes and the FILL-is-a-promise rule
   token-rules.md                  Tier resolution, the closed property vocabulary, contrast gates
   audit-rubric.md                 128 checks, weighted score, JSON output schema

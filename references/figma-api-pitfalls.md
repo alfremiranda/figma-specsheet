@@ -39,6 +39,8 @@ number. Start here.
 | `x.name === 'Token Row'` matches nothing, though the rows are there | §21 |
 | A focus ring reports an unbound `strokeWeight`, but the panel shows it bound | §22 |
 | `setBoundVariable('strokeWeight', …)` ran and nothing changed | §22 |
+| A focus ring shows on some variants and not others, with identical effects | §23 |
+| A disabled variant is nearly invisible; its opacity reads `0.005` | §24 |
 
 
 **Text sizing has its own reference** — see [text-layout.md](text-layout.md). §3 and §4
@@ -337,6 +339,11 @@ Six keycap chips went black this way while every check reported success: the fil
 bound, the stroke was bound, the text fill was bound *and rendered correctly*. Only the
 frame fill drew its literal.
 
+**It is not universal.** In another file, bound fills on the `swatch-light` / `swatch-dark`
+RECTANGLE layers of a Token Row instance, each with its own mode override, rendered
+correctly. The failure above was a FRAME fill. Which is why docs-kit.md says to screenshot
+one row before trusting either outcome.
+
 **Set variable-bound fills on the main component, not on instance children.** Text
 properties override cleanly inside instances; paint bindings do not.
 
@@ -564,3 +571,45 @@ if (!(back.strokeWeight || SIDES.every(k => back[k]?.id === borderVar.id)))
 ```
 
 Rubric `C18` reads the four sides on a RECTANGLE for exactly this reason.
+
+---
+
+## 23. A shadow's `spread` is ignored on a frame that does not clip
+
+A `DROP_SHADOW` with `spread` and no blur draws a solid ring — the usual way to build a
+focus ring. On a frame or component with `clipsContent: false`, Figma **ignores the
+spread**, and a zero-blur, zero-offset shadow with no spread draws nothing. The effect reads
+back identical on every variant; only some of them show a ring.
+
+This bites when variants are cloned from a base that does not clip: the originals that
+clip draw the ring, and every clone built from the other base silently loses it.
+
+```js
+// detection: a spread shadow on a node that cannot draw it
+const lost = set.children.filter(n => !n.clipsContent &&
+  n.effects.some(e => e.type === 'DROP_SHADOW' && e.visible && e.spread > 0));
+if (lost.length) throw new Error(`spread ignored without clipping: ${lost.map(n => n.name).join(', ')}`);
+
+// fix
+for (const n of lost) n.clipsContent = true;
+```
+
+Screenshot the set after any focus-ring work. This is invisible in the data.
+
+---
+
+## 24. Opacity variables are 0–100, not 0–1
+
+A FLOAT variable bound to `opacity` is read as a **percentage**. A primitive stored as
+`0.5` renders at 0.5% — a disabled variant becomes a faint outline while every binding
+reports correct, and the node's `opacity` reads back as `0.005`.
+
+```js
+// detection: anything bound to opacity that resolves under 1 is almost certainly 0–1 by mistake
+const op = node.boundVariables?.opacity && await figma.variables.getVariableByIdAsync(node.boundVariables.opacity.id);
+if (op && node.opacity < 0.01) throw new Error(`${node.name}: opacity variable ${op.name} is stored 0–1; Figma reads 0–100`);
+```
+
+Fixing the primitive (`opacity/50` → `50`) fixes every consumer at once. Every node bound
+to the old value was already rendering wrongly, so the change is corrective, not breaking —
+but name the other consumers in the report.

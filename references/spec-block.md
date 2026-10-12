@@ -150,7 +150,9 @@ Before writing:
   element's implicit role. Never a custom-widget APG pattern for a native control: that
   documents a different component, with a different keyboard model
 - `keyboard` is non-empty for anything interactive
-- `typography.strategy` is one of the two valid values, and the bindings match it
+- `typography.strategy` is one of the two valid values, and the bindings match it — or
+  `none`, with a note, for a component that renders no text of its own (a checkbox, a
+  radio, a divider). Its label is a sibling and has its own spec
 - `flags` mirrors the current audit — a stale `flags` block is worse than none
 
 Do not write a partial block. Report and stop.
